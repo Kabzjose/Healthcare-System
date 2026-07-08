@@ -22,7 +22,7 @@ import { AxiosError } from 'axios';
 
 const mpesaSchema = z.object({
   phone: z
-    .string({ required_error: 'Phone number is required' })
+    .string({ error: 'Phone number is required' })
     .regex(
       /^(254|0)[17]\d{8}$/,
       'Enter a valid Kenyan number e.g. 0712345678 or 254712345678'
