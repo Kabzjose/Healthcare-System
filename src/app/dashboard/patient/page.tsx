@@ -15,6 +15,7 @@ import { useState } from 'react';
 import { MpesaModal } from '@/components/payments/MpesaModal';
 import { Appointment } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { AxiosError } from 'axios';
 
 export default function PatientDashboardPage() {
   const { user } = useAuthStore();
@@ -38,12 +39,15 @@ export default function PatientDashboardPage() {
       { appointmentId: id },
       {
         onSuccess: () => toast({ title: 'Appointment cancelled' }),
-        onError: (err: any) =>
+        onError: (err: unknown) => {
+          const apiError = err as AxiosError<{ message?: string }>;
+
           toast({
             title: 'Could not cancel',
-            description: err?.response?.data?.message,
+            description: apiError.response?.data?.message ?? apiError.message,
             variant: 'destructive',
-          }),
+          });
+        },
       }
     );
   };

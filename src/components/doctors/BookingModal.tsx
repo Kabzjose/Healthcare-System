@@ -99,7 +99,7 @@ export const BookingModal = ({
       });
 
       handleClose();
-    } catch (err) {
+    } catch {
       // Error is shown via the error state below
     }
   };

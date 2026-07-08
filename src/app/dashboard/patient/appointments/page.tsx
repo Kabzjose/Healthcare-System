@@ -13,6 +13,7 @@ import { Appointment } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { AxiosError } from 'axios';
 
 const tabs = [
   { value: 'pending', label: 'Pending' },
@@ -37,12 +38,15 @@ export default function PatientAppointmentsPage() {
       { appointmentId: id },
       {
         onSuccess: () => toast({ title: 'Appointment cancelled successfully' }),
-        onError: (err: any) =>
+        onError: (err: unknown) => {
+          const apiError = err as AxiosError<{ message?: string }>;
+
           toast({
             title: 'Could not cancel',
-            description: err?.response?.data?.message,
+            description: apiError.response?.data?.message ?? apiError.message,
             variant: 'destructive',
-          }),
+          });
+        },
       }
     );
   };

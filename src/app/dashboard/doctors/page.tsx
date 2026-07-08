@@ -10,6 +10,7 @@ import { EmptyState } from '@/components/shared/EmptyState';
 import { useAuthStore } from '@/store/authStore';
 import { useDoctorAppointments, useUpdateAppointmentStatus } from '@/hooks/useAppointments';
 import { useToast } from '@/hooks/use-toast';
+import { AxiosError } from 'axios';
 
 export default function DoctorDashboardPage() {
   const { user } = useAuthStore();
@@ -34,12 +35,15 @@ export default function DoctorDashboardPage() {
       {
         onSuccess: () =>
           toast({ title: `Appointment marked as ${status}` }),
-        onError: (err: any) =>
+        onError: (err: unknown) => {
+          const apiError = err as AxiosError<{ message?: string }>;
+
           toast({
             title: 'Update failed',
-            description: err?.response?.data?.message,
+            description: apiError.response?.data?.message ?? apiError.message,
             variant: 'destructive',
-          }),
+          });
+        },
       }
     );
   };

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { type ChangeEvent, useEffect, useState } from 'react';
 import { Search } from 'lucide-react';
 import { Navbar } from '@/components/layout/Navbar';
 import { DoctorCard } from '@/components/doctors/DoctorCard';
@@ -9,7 +9,6 @@ import { EmptyState } from '@/components/shared/EmptyState';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useDoctors } from '@/hooks/useDoctors';
-import { useDebounce } from '@/hooks/useDebounce';
 
 // Simple debounce hook to avoid firing on every keystroke
 function useDebounce<T>(value: T, delay = 400): T {
@@ -20,8 +19,6 @@ function useDebounce<T>(value: T, delay = 400): T {
   }, [value, delay]);
   return debounced;
 }
-
-import { useEffect } from 'react';
 
 export default function DoctorsPage() {
   const [search, setSearch] = useState('');
@@ -36,10 +33,10 @@ export default function DoctorsPage() {
   const doctors = data?.data ?? [];
   const meta = data?.meta;
 
-  // Reset to page 1 when search changes
-  useEffect(() => {
+  const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setSearch(event.target.value);
     setPage(1);
-  }, [debouncedSearch]);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -61,7 +58,7 @@ export default function DoctorsPage() {
             placeholder="Search by specialization e.g. Cardiology"
             className="pl-9"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={handleSearchChange}
           />
         </div>
 
