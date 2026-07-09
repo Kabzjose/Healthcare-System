@@ -1,10 +1,11 @@
 'use client';
 
 import Link from 'next/link';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Activity } from 'lucide-react';
+import { Activity, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,23 +22,37 @@ import { ErrorMessage } from '@/components/shared/ErrorMessage';
 import { useAuth } from '@/hooks/useAuth';
 import { AxiosError } from 'axios';
 
-const registerSchema = z.object({
-  first_name: z.string().min(2, 'First name must be at least 2 characters'),
-  last_name: z.string().min(2, 'Last name must be at least 2 characters'),
-  email: z.string().email('Invalid email address'),
-  phone: z.string().optional(),
-  password: z
-    .string()
-    .min(8, 'Password must be at least 8 characters')
-    .regex(/[A-Z]/, 'Must contain an uppercase letter')
-    .regex(/[0-9]/, 'Must contain a number'),
-  role: z.enum(['patient', 'doctor']),
-});
+const registerSchema = z
+  .object({
+    first_name: z.string().min(2, 'First name must be at least 2 characters'),
+    last_name: z.string().min(2, 'Last name must be at least 2 characters'),
+    email: z.string().email('Invalid email address'),
+    phone: z
+      .string()
+      .min(1, 'Phone number is required')
+      .regex(
+        /^(254|0)[17]\d{8}$/,
+        'Enter a valid Kenyan number e.g. 0712345678 or 254712345678'
+      ),
+    password: z
+      .string()
+      .min(8, 'Password must be at least 8 characters')
+      .regex(/[A-Z]/, 'Must contain an uppercase letter')
+      .regex(/[0-9]/, 'Must contain a number'),
+    confirm_password: z.string().min(1, 'Please confirm your password'),
+    role: z.enum(['patient', 'doctor']),
+  })
+  .refine((values) => values.password === values.confirm_password, {
+    message: 'Passwords do not match',
+    path: ['confirm_password'],
+  });
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
   const { registerAsync, isRegistering, registerError } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     register,
@@ -49,7 +64,8 @@ export default function RegisterPage() {
     defaultValues: { role: 'patient' },
   });
 
-  const onSubmit = async (values: RegisterFormValues) => {
+  const onSubmit = async ({ confirm_password, ...values }: RegisterFormValues) => {
+    void confirm_password;
     await registerAsync(values).catch(() => {});
   };
 
@@ -104,6 +120,7 @@ export default function RegisterPage() {
                   id="email"
                   type="email"
                   placeholder="you@example.com"
+                  autoComplete="email"
                   {...register('email')}
                 />
                 {errors.email && (
@@ -112,27 +129,72 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <Label htmlFor="phone" className="mb-1.5 block">
-                  Phone <span className="text-muted-foreground font-normal">(optional)</span>
-                </Label>
+                <Label htmlFor="phone" className="mb-1.5 block">Phone number</Label>
                 <Input
                   id="phone"
                   type="tel"
                   placeholder="0712 345 678"
+                  autoComplete="tel"
                   {...register('phone')}
                 />
+                {errors.phone && (
+                  <p className="text-xs text-red-600 mt-1">{errors.phone.message}</p>
+                )}
               </div>
 
               <div>
                 <Label htmlFor="password" className="mb-1.5 block">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  {...register('password')}
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="••••••••"
+                    autoComplete="new-password"
+                    className="pr-10"
+                    {...register('password')}
+                  />
+                  <button
+                    type="button"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground transition-colors hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                    onClick={() => setShowPassword((visible) => !visible)}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
                 {errors.password && (
                   <p className="text-xs text-red-600 mt-1">{errors.password.message}</p>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="confirm_password" className="mb-1.5 block">Confirm password</Label>
+                <div className="relative">
+                  <Input
+                    id="confirm_password"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    placeholder="••••••••"
+                    autoComplete="new-password"
+                    className="pr-10"
+                    {...register('confirm_password')}
+                  />
+                  <button
+                    type="button"
+                    aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground transition-colors hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                    onClick={() => setShowConfirmPassword((visible) => !visible)}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+                {errors.confirm_password && (
+                  <p className="text-xs text-red-600 mt-1">
+                    {errors.confirm_password.message}
+                  </p>
                 )}
               </div>
 

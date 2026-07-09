@@ -102,13 +102,13 @@ export default function DoctorDashboardPage() {
       {/* Quick actions */}
       <div className="flex gap-3 flex-wrap">
         <Button asChild>
-          <Link href="/dashboard/doctor/availability">
+          <Link href="/dashboard/doctors">
             <Clock className="mr-2 h-4 w-4" />
-            Manage Availability
+            Manage Dashboard
           </Link>
         </Button>
         <Button variant="outline" asChild>
-          <Link href="/dashboard/doctor/appointments">View All Appointments</Link>
+          <Link href="/dashboard/doctors">View All Appointments</Link>
         </Button>
       </div>
 

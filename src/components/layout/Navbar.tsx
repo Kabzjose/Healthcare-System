@@ -82,7 +82,7 @@ export const Navbar = () => {
                     <Link
                       href={
                         user.role === 'doctor'
-                          ? '/dashboard/doctor'
+                          ? '/dashboard/doctors'
                           : '/dashboard/patient'
                       }
                     >

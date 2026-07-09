@@ -7,8 +7,6 @@ import {
   CreditCard,
   Home,
   Stethoscope,
-  Clock,
-  User,
   Activity,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -27,10 +25,7 @@ const patientLinks: SidebarLink[] = [
 ];
 
 const doctorLinks: SidebarLink[] = [
-  { href: '/dashboard/doctor', label: 'Overview', icon: Home },
-  { href: '/dashboard/doctor/appointments', label: 'Appointments', icon: Calendar },
-  { href: '/dashboard/doctor/availability', label: 'Availability', icon: Clock },
-  { href: '/dashboard/doctor/profile', label: 'Profile', icon: User },
+  { href: '/dashboard/doctors', label: 'Overview', icon: Home },
 ];
 
 interface SidebarProps {
@@ -58,7 +53,8 @@ export const Sidebar = ({ role }: SidebarProps) => {
           // Mark as active if exact match OR if it starts with the path (for sub-routes)
           const isActive =
             pathname === link.href ||
-            (link.href !== `/dashboard/${role}` && pathname.startsWith(link.href));
+            (link.href !== `/dashboard/${role === 'doctor' ? 'doctors' : 'patient'}` &&
+              pathname.startsWith(link.href));
 
           return (
             <Link
