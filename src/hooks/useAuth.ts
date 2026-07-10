@@ -21,7 +21,7 @@ export const useAuth = () => {
       setAuth(data.user, data.access_token, data.refresh_token);
       // Redirect based on role
       if (data.user.role === 'doctor') {
-        router.push('/dashboard/doctors');
+        router.push('/dashboard/doctors/profile');
       } else {
         router.push('/dashboard/patient');
       }
