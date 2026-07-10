@@ -102,6 +102,12 @@ export default function DoctorDashboardPage() {
       {/* Quick actions */}
       <div className="flex gap-3 flex-wrap">
         <Button asChild>
+          <Link href="/dashboard/doctors/me">
+            <Users className="mr-2 h-4 w-4" />
+            My Profile
+          </Link>
+        </Button>
+        <Button asChild>
           <Link href="/dashboard/doctors">
             <Clock className="mr-2 h-4 w-4" />
             Manage Dashboard
