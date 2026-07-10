@@ -17,6 +17,8 @@ import {
   useCreateDoctorProfile,
   useUpdateDoctorProfile,
 } from '@/hooks/useDoctors';
+import { useMyAvailability } from '@/hooks/useDoctors';
+import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { AxiosError } from 'axios';
 import { useState } from 'react';
@@ -83,6 +85,8 @@ export default function DoctorProfilePage() {
 
   // Fetch existing profile — will return 404 if not created yet
   const { data: profile, isLoading, error } = useMyDoctorProfile();
+  const { data: mySlots = [], isLoading: loadingAvailability } = useMyAvailability();
+  const router = useRouter();
 
   const hasProfile = !!profile && !error;
   const showForm = !hasProfile || isEditing;
@@ -118,6 +122,13 @@ export default function DoctorProfilePage() {
       });
     }
   }, [profile, isEditing, reset]);
+
+  // If doctor has a profile but no availability slots, redirect them to create availability
+  useEffect(() => {
+    if (hasProfile && !isEditing && !loadingAvailability && Array.isArray(mySlots) && mySlots.length === 0) {
+      router.push('/dashboard/doctor/availability');
+    }
+  }, [hasProfile, isEditing, loadingAvailability, mySlots, router]);
 
   const onSubmit = async (values: ProfileFormValues) => {
     try {
