@@ -126,7 +126,7 @@ export default function DoctorProfilePage() {
   // If doctor has a profile but no availability slots, redirect them to create availability
   useEffect(() => {
     if (hasProfile && !isEditing && !loadingAvailability && Array.isArray(mySlots) && mySlots.length === 0) {
-      router.push('/dashboard/doctor/availability');
+      router.push('/dashboard/doctors/availability');
     }
   }, [hasProfile, isEditing, loadingAvailability, mySlots, router]);
 
@@ -258,7 +258,7 @@ export default function DoctorProfilePage() {
                   <p className="text-sm text-muted-foreground mt-0.5">
                     Next step — set your{' '}
                     <a
-                      href="/dashboard/doctor/availability"
+                      href="/dashboard/doctors/availability"
                       className="text-primary font-medium underline underline-offset-2"
                     >
                       availability slots
