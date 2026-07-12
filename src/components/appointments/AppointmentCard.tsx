@@ -37,8 +37,8 @@ export const AppointmentCard = ({
           <div>
             <p className="font-semibold text-foreground">
               {role === 'patient'
-                ? `Dr. ${appointment.doctor_first_name} ${appointment.doctor_last_name}`
-                : `${appointment.patient_first_name} ${appointment.patient_last_name}`}
+                ? `Dr. ${appointment.doctor_first_name ?? '—'} ${appointment.doctor_last_name ?? ''}`
+                : `${appointment.patient_first_name ?? '—'} ${appointment.patient_last_name ?? ''}`}
             </p>
             <p className="text-sm text-muted-foreground">
               {role === 'patient'
