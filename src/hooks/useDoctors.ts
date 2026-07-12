@@ -1,11 +1,12 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiGet, apiPost, apiPatch, apiDelete } from '@/lib/api';
+import { api, apiGet, apiPost, apiPatch, apiDelete } from '@/lib/api';
 import {
   DoctorProfile,
   AvailabilitySlot,
   PaginatedResponse,
+  PaginationMeta,
   CreateDoctorProfileInput,
   CreateAvailabilitySlotsInput,
 } from '@/types';
@@ -24,9 +25,14 @@ export const doctorKeys = {
 // ── Browse all doctors (public) ───────────────────────────────────────────────
 export const useDoctors = (filters: { specialization?: string; page?: number } = {}) => {
   return useQuery({
-    queryKey: doctorKeys.list(filters),
-    queryFn: () =>
-      apiGet<PaginatedResponse<DoctorProfile>>('/doctors', filters as Record<string, unknown>),
+    queryKey: doctorKeys.list(filters as Record<string, unknown>),
+    queryFn: async () => {
+      const response = await api.get('/doctors', { params: filters });
+      return {
+        data: response.data.data as DoctorProfile[],
+        meta: response.data.meta as PaginationMeta,
+      };
+    },
   });
 };
 

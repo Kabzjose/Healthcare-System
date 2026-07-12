@@ -30,6 +30,8 @@ export default function DoctorsPage() {
     page,
   });
 
+  
+
   const doctors = data?.data ?? [];
   const meta = data?.meta;
 

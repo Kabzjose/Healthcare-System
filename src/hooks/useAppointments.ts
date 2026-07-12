@@ -1,8 +1,8 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiGet, apiPost, apiPatch } from '@/lib/api';
-import { Appointment, BookAppointmentInput, PaginatedResponse } from '@/types';
+import { api,apiGet, apiPost, apiPatch } from '@/lib/api';
+import { Appointment, BookAppointmentInput, PaginationMeta } from '@/types';
 
 export const appointmentKeys = {
   all: ['appointments'] as const,
@@ -19,22 +19,28 @@ export const usePatientAppointments = (
 ) => {
   return useQuery({
     queryKey: appointmentKeys.myPatient(filters as Record<string, unknown>),
-    queryFn: () =>
-      apiGet<PaginatedResponse<Appointment>>('/appointments/my', filters as Record<string, unknown>),
+    queryFn: async () => {
+      const response = await api.get('/appointments/my', { params: filters });
+      return {
+        data: response.data.data as Appointment[],
+        meta: response.data.meta as PaginationMeta,
+      };
+    },
   });
 };
 
-// ── Doctor's appointments ─────────────────────────────────────────────────────
 export const useDoctorAppointments = (
   filters: { status?: string; date?: string; page?: number } = {}
 ) => {
   return useQuery({
     queryKey: appointmentKeys.myDoctor(filters as Record<string, unknown>),
-    queryFn: () =>
-      apiGet<PaginatedResponse<Appointment>>(
-        '/appointments/doctor/my',
-        filters as Record<string, unknown>
-      ),
+    queryFn: async () => {
+      const response = await api.get('/appointments/doctor/my', { params: filters });
+      return {
+        data: response.data.data as Appointment[],
+        meta: response.data.meta as PaginationMeta,
+      };
+    },
   });
 };
 

@@ -1,15 +1,20 @@
 'use client';
 
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { apiGet, apiPost } from '@/lib/api';
-import { Payment, PaginatedResponse } from '@/types';
+import {api, apiGet, apiPost } from '@/lib/api';
+import { Payment, PaginatedResponse, PaginationMeta } from '@/types';
 
 // ── Patient payment history ───────────────────────────────────────────────────
 export const useMyPayments = (filters: { status?: string; page?: number } = {}) => {
   return useQuery({
     queryKey: ['payments', 'my', filters],
-    queryFn: () =>
-      apiGet<PaginatedResponse<Payment>>('/payments/my', filters as Record<string, unknown>),
+    queryFn: async () => {
+      const response = await api.get('/payments/my', { params: filters });
+      return {
+        data: response.data.data as Payment[],
+        meta: response.data.meta as PaginationMeta,
+      };
+    },
   });
 };
 
