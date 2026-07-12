@@ -14,10 +14,10 @@ import { BookingModal } from '@/components/doctors/BookingModal';
 import { useDoctor, useDoctorAvailability } from '@/hooks/useDoctors';
 import { useAuthStore } from '@/store/authStore';
 import { formatCurrency, formatTime, getInitials, capitalize } from '@/lib/utils';
+import { AvailabilitySlot } from '@/types';
 
-// Group slots by day for the display
-const groupByDay = (slots: { day_of_week: string; start_time: string; end_time: string; id: string; is_active: boolean; doctor_id: string; created_at: string }[]) => {
-  return slots.reduce<Record<string, typeof slots>>((acc, slot) => {
+const groupByDay = (slots: AvailabilitySlot[]) => {
+  return slots.reduce<Record<string, AvailabilitySlot[]>>((acc, slot) => {
     if (!acc[slot.day_of_week]) acc[slot.day_of_week] = [];
     acc[slot.day_of_week].push(slot);
     return acc;
@@ -35,21 +35,25 @@ export default function DoctorProfilePage() {
   const groupedSlots = groupByDay(slots);
   const days = Object.keys(groupedSlots);
 
-  if (loadingDoctor) return (
-    <div className="min-h-screen">
-      <Navbar />
-      <LoadingSpinner fullPage />
-    </div>
-  );
-
-  if (error || !doctor) return (
-    <div className="min-h-screen">
-      <Navbar />
-      <div className="max-w-2xl mx-auto px-4 py-20">
-        <ErrorMessage message="Doctor not found or an error occurred." />
+  if (loadingDoctor) {
+    return (
+      <div className="min-h-screen">
+        <Navbar />
+        <LoadingSpinner fullPage />
       </div>
-    </div>
-  );
+    );
+  }
+
+  if (error || !doctor) {
+    return (
+      <div className="min-h-screen">
+        <Navbar />
+        <div className="max-w-2xl mx-auto px-4 py-20">
+          <ErrorMessage message="Doctor not found or an error occurred." />
+        </div>
+      </div>
+    );
+  }
 
   const canBook = isAuthenticated && user?.role === 'patient';
 
@@ -58,6 +62,7 @@ export default function DoctorProfilePage() {
       <Navbar />
 
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+
         {/* Profile header */}
         <Card>
           <CardContent className="pt-6">
@@ -72,7 +77,9 @@ export default function DoctorProfilePage() {
                 <h1 className="text-2xl font-bold">
                   Dr. {doctor.first_name} {doctor.last_name}
                 </h1>
-                <p className="text-primary font-medium mt-0.5">{doctor.specialization}</p>
+                <p className="text-primary font-medium mt-0.5">
+                  {doctor.specialization}
+                </p>
 
                 <div className="flex flex-wrap gap-4 mt-3 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1.5">
@@ -97,14 +104,19 @@ export default function DoctorProfilePage() {
                   )}
                 </div>
 
-                <div className="flex items-center gap-3 mt-4">
+                <div className="flex items-center gap-3 mt-4 flex-wrap">
                   <p className="text-lg font-bold text-foreground">
                     {formatCurrency(doctor.consultation_fee)}
-                    <span className="text-sm font-normal text-muted-foreground"> / consultation</span>
+                    <span className="text-sm font-normal text-muted-foreground">
+                      {' '}/ consultation
+                    </span>
                   </p>
 
                   {canBook && (
-                    <Button onClick={() => setBookingOpen(true)} disabled={slots.length === 0}>
+                    <Button
+                      onClick={() => setBookingOpen(true)}
+                      disabled={slots.length === 0}
+                    >
                       {slots.length === 0 ? 'No slots available' : 'Book Appointment'}
                     </Button>
                   )}
@@ -113,6 +125,12 @@ export default function DoctorProfilePage() {
                     <Button asChild>
                       <a href="/login">Login to Book</a>
                     </Button>
+                  )}
+
+                  {isAuthenticated && user?.role === 'doctor' && (
+                    <p className="text-sm text-muted-foreground">
+                      Switch to a patient account to book appointments
+                    </p>
                   )}
                 </div>
               </div>
@@ -124,10 +142,14 @@ export default function DoctorProfilePage() {
         {doctor.bio && (
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">About Dr. {doctor.last_name}</CardTitle>
+              <CardTitle className="text-base">
+                About Dr. {doctor.last_name}
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground leading-relaxed">{doctor.bio}</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {doctor.bio}
+              </p>
             </CardContent>
           </Card>
         )}
@@ -153,7 +175,7 @@ export default function DoctorProfilePage() {
                   <div key={day}>
                     {idx > 0 && <Separator className="mb-4" />}
                     <div className="flex items-start gap-4">
-                      <p className="text-sm font-semibold capitalize w-24 shrink-0 pt-0.5">
+                      <p className="text-sm font-semibold capitalize w-28 shrink-0 pt-0.5">
                         {capitalize(day)}
                       </p>
                       <div className="flex flex-wrap gap-2">
@@ -176,7 +198,7 @@ export default function DoctorProfilePage() {
       </div>
 
       {/* Booking modal */}
-      {canBook && (
+      {canBook && doctor && (
         <BookingModal
           isOpen={bookingOpen}
           onClose={() => setBookingOpen(false)}
