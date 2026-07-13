@@ -86,7 +86,7 @@ export interface Appointment {
   patient_phone: string | null;
   // Doctor
   doctor_id: string;
-  doctor_first_name: string;
+  doctor_name: string;
   doctor_last_name: string;
   doctor_email: string;
   specialization: string;
