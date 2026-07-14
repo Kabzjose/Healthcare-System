@@ -80,7 +80,7 @@ export interface Appointment {
   created_at: string;
   // Patient
   patient_id: string;
-  patient_first_name: string;
+  patient_name: string;
   patient_last_name: string;
   patient_email: string;
   patient_phone: string | null;
