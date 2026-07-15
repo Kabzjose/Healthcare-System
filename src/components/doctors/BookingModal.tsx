@@ -24,10 +24,18 @@ import { useToast } from '@/hooks/use-toast';
 import { AxiosError } from 'axios';
 
 const bookingSchema = z.object({
-  reason: z.string().min(5, 'Please describe your reason for the visit').optional(),
+  reason: z.preprocess(
+    (value) => {
+      if (typeof value !== 'string') return value;
+
+      const trimmed = value.trim();
+      return trimmed === '' ? undefined : trimmed;
+    },
+    z.string().min(5, 'Please describe your reason for the visit').optional()
+  ),
 });
 
-type BookingFormValues = z.infer<typeof bookingSchema>;
+type BookingFormValues = z.input<typeof bookingSchema>;
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -62,7 +70,7 @@ export const BookingModal = ({
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<BookingFormValues>({
+  } = useForm<BookingFormValues, unknown, z.output<typeof bookingSchema>>({
     resolver: zodResolver(bookingSchema),
   });
 
@@ -82,7 +90,7 @@ export const BookingModal = ({
     onClose();
   };
 
-  const onSubmit = async (values: BookingFormValues) => {
+  const onSubmit = async (values: z.output<typeof bookingSchema>) => {
     if (!selectedSlot || !selectedDate) return;
 
     try {
