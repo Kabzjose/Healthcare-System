@@ -2,12 +2,14 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store/authStore';
+import { Navbar } from '@/components/layout/Navbar';
+import { Sidebar } from '@/components/layout/Sidebar';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
+import { useAuthStore } from '@/store/authStore';
 
-export function AuthGuard({ children }: { children: React.ReactNode }) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { isAuthenticated, hasHydrated } = useAuthStore();
+  const { user, isAuthenticated, hasHydrated } = useAuthStore();
 
   useEffect(() => {
     if (hasHydrated && !isAuthenticated) {
@@ -15,8 +17,25 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [hasHydrated, isAuthenticated, router]);
 
-  if (!hasHydrated) return <LoadingSpinner fullPage />;
-  if (!isAuthenticated) return <LoadingSpinner fullPage />;
+  // Wait until Zustand rehydrates before making any auth decision
+  if (!hasHydrated) {
+    return <LoadingSpinner fullPage />;
+  }
 
-  return <>{children}</>;
+  // After hydration, if not authenticated, keep showing loading while redirect happens
+  if (!isAuthenticated || !user) {
+    return <LoadingSpinner fullPage />;
+  }
+
+  return (
+    <div className="min-h-screen bg-muted/20">
+      <Navbar />
+      <div className="flex">
+        <Sidebar role={user.role} />
+        <main className="flex-1 p-6 lg:p-8 max-w-6xl">
+          {children}
+        </main>
+      </div>
+    </div>
+  );
 }
