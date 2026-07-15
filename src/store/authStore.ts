@@ -7,6 +7,7 @@ interface AuthState {
   access_token: string | null;
   refresh_token: string | null;
   isAuthenticated: boolean;
+  hasHydrated: boolean;
 
   // Actions
   setAuth: (user: User, access_token: string, refresh_token: string) => void;
@@ -21,7 +22,7 @@ export const useAuthStore = create<AuthState>()(
       access_token: null,
       refresh_token: null,
       isAuthenticated: false,
-
+      hasHydrated: false,
       setAuth: (user, access_token, refresh_token) => {
         // Also write to localStorage so the Axios interceptor can read it
         localStorage.setItem('access_token', access_token);

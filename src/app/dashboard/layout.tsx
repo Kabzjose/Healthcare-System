@@ -2,34 +2,21 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Navbar } from '@/components/layout/Navbar';
-import { Sidebar } from '@/components/layout/Sidebar';
-import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
 import { useAuthStore } from '@/store/authStore';
+import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { user, isAuthenticated } = useAuthStore();
+  const { isAuthenticated, hasHydrated } = useAuthStore();
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (hasHydrated && !isAuthenticated) {
       router.replace('/login');
     }
-  }, [isAuthenticated, router]);
+  }, [hasHydrated, isAuthenticated, router]);
 
-  if (!isAuthenticated || !user) {
-    return <LoadingSpinner fullPage />;
-  }
+  if (!hasHydrated) return <LoadingSpinner fullPage />;
+  if (!isAuthenticated) return <LoadingSpinner fullPage />;
 
-  return (
-    <div className="min-h-screen bg-muted/20">
-      <Navbar />
-      <div className="flex">
-        <Sidebar role={user.role} />
-        <main className="flex-1 p-6 lg:p-8 max-w-6xl">
-          {children}
-        </main>
-      </div>
-    </div>
-  );
+  return <>{children}</>;
 }
