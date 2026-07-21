@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/layout/Navbar';
 import { Sidebar } from '@/components/layout/Sidebar';
@@ -9,20 +9,29 @@ import { useAuthStore } from '@/store/authStore';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { user, isAuthenticated, hasHydrated } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
+
+  // Track whether Zustand has finished hydrating from localStorage
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    if (hasHydrated && !isAuthenticated) {
+    // This runs after first render 
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    // Only redirect after hydration — never on the first render
+    if (hydrated && !isAuthenticated) {
       router.replace('/login');
     }
-  }, [hasHydrated, isAuthenticated, router]);
+  }, [hydrated, isAuthenticated, router]);
 
-  // Wait until Zustand rehydrates before making any auth decision
-  if (!hasHydrated) {
+  // Still waiting for Zustand to load from localStorage
+  if (!hydrated) {
     return <LoadingSpinner fullPage />;
   }
 
-  // After hydration, if not authenticated, keep showing loading while redirect happens
+  // Hydrated but not authenticated — redirect is in progress
   if (!isAuthenticated || !user) {
     return <LoadingSpinner fullPage />;
   }
