@@ -141,13 +141,13 @@ export default function PatientAppointmentsPage() {
 
       {/* Payment choice modal */}
       <Dialog open={showPaymentChoice} onOpenChange={setShowPaymentChoice}>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent className="sm:max-w-sm bg-white text-slate-900 border border-slate-200 shadow-2xl rounded-3xl p-6 opacity-100">
           <DialogHeader>
-            <DialogTitle>Choose Payment Method</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-xl font-bold text-slate-900">Choose Payment Method</DialogTitle>
+            <DialogDescription className="text-slate-600 text-sm">
               {selectedAppt && (
                 <>
-                  Pay {formatCurrency(selectedAppt.consultation_fee)} for your
+                  Pay <strong className="text-slate-900 font-bold">{formatCurrency(selectedAppt.consultation_fee)}</strong> for your
                   appointment with Dr. {selectedAppt.doctor_last_name}
                 </>
               )}

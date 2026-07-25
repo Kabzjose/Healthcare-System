@@ -46,7 +46,7 @@ function DialogContent({ className, children, ...props }: React.ComponentProps<"
         aria-modal="true"
         data-slot="dialog-content"
         className={cn(
-          "relative z-10 w-full max-w-lg rounded-lg border bg-background p-6 text-foreground shadow-lg",
+          "relative z-10 w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 shadow-2xl dark:bg-slate-900 dark:text-slate-100 dark:border-slate-800",
           className
         )}
         {...props}
