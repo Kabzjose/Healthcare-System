@@ -29,6 +29,7 @@ export const AppointmentCard = ({
   const isCancellable = isPending || isConfirmed;
   const needsPayment =
   appointment.payment_status !== 'succeeded' &&
+  appointment.payment_status !== 'refunded' &&
   appointment.status === 'confirmed';
 
   return (
@@ -47,7 +48,7 @@ export const AppointmentCard = ({
                 : appointment.patient_email}
             </p>
           </div>
-    
+
           <div className="flex flex-col items-end gap-1">
             <AppointmentStatusBadge status={appointment.status} />
             {/* Only show payment badge if payment needs attention */}
