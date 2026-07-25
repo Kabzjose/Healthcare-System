@@ -7,13 +7,21 @@ import { AppointmentCard } from '@/components/appointments/AppointmentCard';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { MpesaModal } from '@/components/payments/MpesaModal';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { usePatientAppointments, useCancelAppointment } from '@/hooks/useAppointments';
 import { useCreateCheckoutSession } from '@/hooks/usePayments';
 import { Appointment } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { AxiosError } from 'axios';
+import { CreditCard, Smartphone } from 'lucide-react';
+import { formatCurrency } from '@/lib/utils';
 
 const tabs = [
   { value: 'pending', label: 'Pending' },
@@ -25,7 +33,9 @@ const tabs = [
 export default function PatientAppointmentsPage() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<string>('pending');
-  const [mpesaAppt, setMpesaAppt] = useState<Appointment | null>(null);
+  const [selectedAppt, setSelectedAppt] = useState<Appointment | null>(null);
+  const [showPaymentChoice, setShowPaymentChoice] = useState(false);
+  const [showMpesa, setShowMpesa] = useState(false);
 
   const { data, isLoading } = usePatientAppointments({ status: activeTab });
   const { mutate: cancelAppointment, isPending: isCancelling } = useCancelAppointment();
@@ -38,21 +48,31 @@ export default function PatientAppointmentsPage() {
       { appointmentId: id },
       {
         onSuccess: () => toast({ title: 'Appointment cancelled successfully' }),
-        onError: (err: unknown) => {
-          const apiError = err as AxiosError<{ message?: string }>;
-
+        onError: (err: any) =>
           toast({
             title: 'Could not cancel',
-            description: apiError.response?.data?.message ?? apiError.message,
+            description: err?.response?.data?.message,
             variant: 'destructive',
-          });
-        },
+          }),
       }
     );
   };
 
+  // Open payment choice modal
   const handlePay = (appt: Appointment) => {
-    stripeCheckout(appt.id);
+    setSelectedAppt(appt);
+    setShowPaymentChoice(true);
+  };
+
+  const handleStripe = () => {
+    if (!selectedAppt) return;
+    setShowPaymentChoice(false);
+    stripeCheckout(selectedAppt.id);
+  };
+
+  const handleMpesa = () => {
+    setShowPaymentChoice(false);
+    setShowMpesa(true);
   };
 
   return (
@@ -86,6 +106,8 @@ export default function PatientAppointmentsPage() {
                 description={
                   tab.value === 'pending'
                     ? 'Book an appointment to get started'
+                    : tab.value === 'confirmed'
+                    ? 'Confirmed appointments will appear here — pay to secure your slot'
                     : undefined
                 }
                 action={
@@ -114,12 +136,64 @@ export default function PatientAppointmentsPage() {
         ))}
       </Tabs>
 
-      {mpesaAppt && (
+      {/* Payment choice modal */}
+      <Dialog open={showPaymentChoice} onOpenChange={setShowPaymentChoice}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Choose Payment Method</DialogTitle>
+            <DialogDescription>
+              {selectedAppt && (
+                <>
+                  Pay {formatCurrency(selectedAppt.consultation_fee)} for your
+                  appointment with Dr. {selectedAppt.doctor_last_name}
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 mt-2">
+            <Button
+              className="w-full justify-start gap-3 h-14"
+              variant="outline"
+              onClick={handleStripe}
+              disabled={isCheckingOut}
+            >
+              <CreditCard className="h-5 w-5 text-blue-600" />
+              <div className="text-left">
+                <p className="font-medium">Card Payment</p>
+                <p className="text-xs text-muted-foreground">
+                  Visa, Mastercard via Stripe
+                </p>
+              </div>
+            </Button>
+
+            <Button
+              className="w-full justify-start gap-3 h-14"
+              variant="outline"
+              onClick={handleMpesa}
+            >
+              <Smartphone className="h-5 w-5 text-green-600" />
+              <div className="text-left">
+                <p className="font-medium">M-Pesa</p>
+                <p className="text-xs text-muted-foreground">
+                  Pay via Safaricom M-Pesa STK push
+                </p>
+              </div>
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* M-Pesa modal */}
+      {selectedAppt && (
         <MpesaModal
-          isOpen={!!mpesaAppt}
-          onClose={() => setMpesaAppt(null)}
-          appointmentId={mpesaAppt.id}
-          amount={mpesaAppt.consultation_fee}
+          isOpen={showMpesa}
+          onClose={() => {
+            setShowMpesa(false);
+            setSelectedAppt(null);
+          }}
+          appointmentId={selectedAppt.id}
+          amount={selectedAppt.consultation_fee}
         />
       )}
     </div>

@@ -28,7 +28,8 @@ export const AppointmentCard = ({
   const isConfirmed = appointment.status === 'confirmed';
   const isCancellable = isPending || isConfirmed;
   const needsPayment =
-    appointment.payment_status === 'pending' && appointment.status !== 'cancelled';
+  appointment.payment_status !== 'succeeded' &&
+  appointment.status === 'confirmed';
 
   return (
     <Card className="hover:shadow-md transition-shadow">
@@ -100,8 +101,9 @@ export const AppointmentCard = ({
                 size="sm"
                 onClick={() => onPay(appointment.id)}
                 disabled={isUpdating}
+                className="bg-green-600 hover:bg-green-700"
               >
-                Pay Now
+                Pay {formatCurrency(appointment.consultation_fee)}
               </Button>
             )}
             {isCancellable && onCancel && (
