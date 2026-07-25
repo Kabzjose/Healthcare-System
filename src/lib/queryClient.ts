@@ -4,7 +4,7 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       // Data is fresh for 1 minute — won't refetch if navigating back within 1 min
-      staleTime: 60 * 1000,
+      staleTime: 0,
       // Keep unused data in cache for 5 minutes
       gcTime: 5 * 60 * 1000,
       // Retry failed requests once before showing error
