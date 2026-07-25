@@ -1,23 +1,24 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
 
-const inter = Inter({ subsets: ['latin'] });
-
 export const metadata: Metadata = {
   title: {
-    default: 'HealthCare — Book Doctor Appointments',
-    template: '%s | HealthCare',
+    default: 'MediCare+ — Quality Healthcare You Can Trust',
+    template: '%s | MediCare+',
   },
-  description: 'Book appointments with top doctors in Kenya',
+  description: 'Book appointments with top doctors, manage payments, and access healthcare easily.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <Providers>{children}</Providers>
+      <body className="antialiased min-h-screen bg-background text-foreground">
+        <Providers>
+          <div className="animate-in fade-in duration-300">
+            {children}
+          </div>
+        </Providers>
       </body>
     </html>
   );

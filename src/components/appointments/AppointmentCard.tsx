@@ -1,11 +1,12 @@
 'use client';
 
-import { Calendar, Clock, User, Stethoscope } from 'lucide-react';
+import React from 'react';
+import { Calendar, Clock, User, Stethoscope, Check, X, CreditCard } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AppointmentStatusBadge, PaymentStatusBadge } from './StatusBadge';
+import { AppointmentStatusBadge } from './StatusBadge';
 import { Appointment, UserRole } from '@/types';
-import { formatDate, formatTime, formatCurrency } from '@/lib/utils';
+import { formatDate, formatTime, formatCurrency, cn } from '@/lib/utils';
 
 interface AppointmentCardProps {
   appointment: Appointment;
@@ -26,39 +27,68 @@ export const AppointmentCard = ({
 }: AppointmentCardProps) => {
   const isPending = appointment.status === 'pending';
   const isConfirmed = appointment.status === 'confirmed';
+  const isCompleted = appointment.status === 'completed';
+  const isCancelled = appointment.status === 'cancelled';
   const isCancellable = isPending || isConfirmed;
+  
   const needsPayment =
-  appointment.payment_status !== 'succeeded' &&
-  appointment.payment_status !== 'refunded' &&
-  appointment.status === 'confirmed';
+    appointment.payment_status !== 'succeeded' &&
+    appointment.payment_status !== 'refunded' &&
+    appointment.status === 'confirmed';
+
+  const statusBorderColor = isConfirmed
+    ? 'border-l-primary-500'
+    : isPending
+    ? 'border-l-yellow-500'
+    : isCompleted
+    ? 'border-l-green-500'
+    : isCancelled
+    ? 'border-l-red-500'
+    : 'border-l-gray-300';
+
+  const name =
+    role === 'patient'
+      ? `Dr. ${appointment.doctor_name} ${appointment.doctor_last_name ?? ''}`
+      : `${appointment.patient_name ?? '—'} ${appointment.patient_last_name ?? ''}`;
+
+  const initials = name
+    .replace('Dr. ', '')
+    .trim()
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <p className="font-semibold text-foreground">
-              {role === 'patient'
-                ? `Dr. ${appointment.doctor_name}`
-                : `${appointment.patient_name ?? '—'} ${appointment.patient_last_name ?? ''}`}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              {role === 'patient'
-                ? appointment.specialization
-                : appointment.patient_email}
-            </p>
+    <Card className={cn('hover:shadow-card-hover transition-all border-l-4 rounded-xl overflow-hidden', statusBorderColor)}>
+      <CardHeader className="pb-3 pt-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-primary-50 text-primary-700 font-bold flex items-center justify-center text-sm shrink-0 border border-primary-100">
+              {initials || 'MC'}
+            </div>
+            <div>
+              <p className="font-bold text-foreground text-base leading-tight">
+                {name}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {role === 'patient'
+                  ? appointment.specialization
+                  : appointment.patient_email}
+              </p>
+            </div>
           </div>
 
-          <div className="flex flex-col items-end gap-1">
+          <div className="flex flex-col items-end gap-1 shrink-0">
             <AppointmentStatusBadge status={appointment.status} />
-            {/* Only show payment badge if payment needs attention */}
             {appointment.payment_status === 'pending' && appointment.status === 'confirmed' && (
-              <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800">
-                Payment due
+              <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold bg-yellow-100 text-yellow-800">
+                Payment Due
               </span>
             )}
             {appointment.payment_status === 'succeeded' && (
-              <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-800">
+              <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold bg-emerald-100 text-emerald-800">
                 Paid
               </span>
             )}
@@ -66,46 +96,40 @@ export const AppointmentCard = ({
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-2 pb-3">
-        {/* Date */}
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Calendar className="h-4 w-4 shrink-0" />
-          <span>{formatDate(appointment.appointment_date)}</span>
+      <CardContent className="space-y-2 text-sm pb-4 pt-1">
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Calendar className="h-4 w-4 text-primary-500 shrink-0" />
+          <span className="font-medium text-foreground">{formatDate(appointment.appointment_date)}</span>
         </div>
 
-        {/* Time */}
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Clock className="h-4 w-4 shrink-0" />
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Clock className="h-4 w-4 text-teal-600 shrink-0" />
           <span>
             {formatTime(appointment.start_time)} – {formatTime(appointment.end_time)}
           </span>
         </div>
 
-        {/* Reason (patient view) or specialization (doctor view) */}
         {appointment.reason && (
-          <div className="flex items-start gap-2 text-sm text-muted-foreground">
-            <User className="h-4 w-4 shrink-0 mt-0.5" />
-            <span className="line-clamp-2">{appointment.reason}</span>
+          <div className="flex items-start gap-2 text-muted-foreground bg-muted/40 p-2 rounded-lg">
+            <User className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+            <span className="line-clamp-2 text-xs">{appointment.reason}</span>
           </div>
         )}
 
-        {/* Fee */}
-        <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-          <Stethoscope className="h-4 w-4 shrink-0" />
-          <span>{formatCurrency(appointment.consultation_fee)}</span>
+        <div className="flex items-center justify-between pt-1 border-t border-border/50">
+          <span className="text-xs text-muted-foreground">Consultation Fee</span>
+          <span className="font-bold text-foreground text-sm">{formatCurrency(appointment.consultation_fee)}</span>
         </div>
 
-        {/* Doctor notes (shown after appointment) */}
         {appointment.notes && (
-          <div className="rounded-md bg-muted p-2 text-sm text-muted-foreground">
-            <span className="font-medium">Notes: </span>
+          <div className="rounded-lg bg-primary-50/50 p-2.5 text-xs text-primary-900 border border-primary-100">
+            <span className="font-semibold text-primary-700">Doctor Notes: </span>
             {appointment.notes}
           </div>
         )}
       </CardContent>
 
-      <CardFooter className="flex gap-2 flex-wrap pt-0">
-        {/* Patient actions */}
+      <CardFooter className="flex gap-2 flex-wrap pt-0 pb-4">
         {role === 'patient' && (
           <>
             {needsPayment && onPay && (
@@ -113,8 +137,9 @@ export const AppointmentCard = ({
                 size="sm"
                 onClick={() => onPay(appointment.id)}
                 disabled={isUpdating}
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium gap-1.5 shadow-sm"
               >
+                <CreditCard className="h-3.5 w-3.5" />
                 Pay {formatCurrency(appointment.consultation_fee)}
               </Button>
             )}
@@ -124,15 +149,15 @@ export const AppointmentCard = ({
                 variant="outline"
                 onClick={() => onCancel(appointment.id)}
                 disabled={isUpdating}
-                className="text-red-600 border-red-200 hover:bg-red-50"
+                className="text-red-600 border-red-200 hover:bg-red-50 gap-1.5"
               >
+                <X className="h-3.5 w-3.5" />
                 Cancel
               </Button>
             )}
           </>
         )}
 
-        {/* Doctor actions */}
         {role === 'doctor' && (
           <>
             {isPending && onUpdateStatus && (
@@ -140,7 +165,9 @@ export const AppointmentCard = ({
                 size="sm"
                 onClick={() => onUpdateStatus(appointment.id, 'confirmed')}
                 disabled={isUpdating}
+                className="bg-primary-600 hover:bg-primary-700 gap-1"
               >
+                <Check className="h-3.5 w-3.5" />
                 Confirm
               </Button>
             )}
@@ -150,7 +177,9 @@ export const AppointmentCard = ({
                   size="sm"
                   onClick={() => onUpdateStatus(appointment.id, 'completed')}
                   disabled={isUpdating}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1"
                 >
+                  <Check className="h-3.5 w-3.5" />
                   Mark Complete
                 </Button>
                 <Button
@@ -158,7 +187,7 @@ export const AppointmentCard = ({
                   variant="outline"
                   onClick={() => onUpdateStatus(appointment.id, 'no_show')}
                   disabled={isUpdating}
-                  className="text-gray-600"
+                  className="text-gray-600 hover:bg-gray-100"
                 >
                   No Show
                 </Button>
