@@ -108,13 +108,13 @@ export default function DoctorDashboardPage() {
           </Link>
         </Button>
         <Button asChild>
-          <Link href="/dashboard/doctors">
+          <Link href="/dashboard/doctors/availability">
             <Clock className="mr-2 h-4 w-4" />
-            Manage Dashboard
+            Manage Availability
           </Link>
         </Button>
         <Button variant="outline" asChild>
-          <Link href="/dashboard/doctors">View All Appointments</Link>
+          <Link href="/dashboard/doctors/appointments">View All Appointments</Link>
         </Button>
       </div>
 
