@@ -36,20 +36,28 @@ export const AppointmentCard = ({
     appointment.payment_status?.toLowerCase() === 'paid' ||
     appointment.payment_status?.toLowerCase() === 'completed';
 
-  const needsPayment =
-    appointment.status === 'confirmed' &&
-    appointment.payment_status !== 'succeeded' &&
-    appointment.payment_status !== 'refunded';
+  // Pay button only shows for confirmed + not yet paid
+  const needsPayment = appointment.status === 'confirmed' && !isPaid && appointment.payment_status !== 'refunded';
 
   const statusBorderColor = isConfirmed
-    ? 'border-l-primary-500'
+    ? 'border-l-blue-500'
     : isPending
     ? 'border-l-yellow-500'
     : isCompleted
     ? 'border-l-green-500'
     : isCancelled
-    ? 'border-l-red-500'
+    ? 'border-l-red-400'
     : 'border-l-gray-300';
+
+  const statusHoverBg = isConfirmed
+    ? 'hover:bg-blue-50/40'
+    : isPending
+    ? 'hover:bg-yellow-50/40'
+    : isCompleted
+    ? 'hover:bg-green-50/40'
+    : isCancelled
+    ? 'hover:bg-red-50/30'
+    : 'hover:bg-slate-50';
 
   const name =
     role === 'patient'
@@ -66,7 +74,7 @@ export const AppointmentCard = ({
     .slice(0, 2);
 
   return (
-    <Card className={cn('hover:shadow-card-hover transition-all border-l-4 rounded-xl overflow-hidden', statusBorderColor)}>
+    <Card className={cn('transition-all border-l-4 rounded-xl overflow-hidden', statusBorderColor, statusHoverBg, 'hover:shadow-card-hover')}>
       <CardHeader className="pb-3 pt-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">

@@ -21,7 +21,7 @@ import { Appointment } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { CreditCard, Smartphone } from 'lucide-react';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, cn } from '@/lib/utils';
 
 const tabs = [
   { value: 'pending', label: 'Pending' },
@@ -88,11 +88,26 @@ export default function PatientAppointmentsPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-flex">
-          {tabs.map((tab) => (
-            <TabsTrigger key={tab.value} value={tab.value}>
+        <TabsList className="flex gap-1 bg-transparent p-0 h-auto border-b border-border/60 w-full rounded-none">
+          {([
+            { value: 'pending',   label: 'Pending',   activeColor: 'border-yellow-500 text-yellow-700 bg-yellow-50 font-extrabold' },
+            { value: 'confirmed', label: 'Confirmed',  activeColor: 'border-blue-500 text-blue-700 bg-blue-50 font-extrabold' },
+            { value: 'completed', label: 'Completed',  activeColor: 'border-green-500 text-green-700 bg-green-50 font-extrabold' },
+            { value: 'cancelled', label: 'Cancelled',  activeColor: 'border-red-400 text-red-600 bg-red-50 font-extrabold' },
+          ] as const).map((tab) => (
+            <button
+              key={tab.value}
+              type="button"
+              onClick={() => setActiveTab(tab.value)}
+              className={cn(
+                'px-4 py-2.5 text-sm font-medium rounded-t-lg border-b-2 transition-all whitespace-nowrap -mb-px',
+                activeTab === tab.value
+                  ? tab.activeColor
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50'
+              )}
+            >
               {tab.label}
-            </TabsTrigger>
+            </button>
           ))}
         </TabsList>
 
