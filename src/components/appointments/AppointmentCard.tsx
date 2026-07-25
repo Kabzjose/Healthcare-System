@@ -47,9 +47,20 @@ export const AppointmentCard = ({
                 : appointment.patient_email}
             </p>
           </div>
+    
           <div className="flex flex-col items-end gap-1">
             <AppointmentStatusBadge status={appointment.status} />
-            <PaymentStatusBadge status={appointment.payment_status ?? 'pending'} />
+            {/* Only show payment badge if payment needs attention */}
+            {appointment.payment_status === 'pending' && appointment.status === 'confirmed' && (
+              <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800">
+                Payment due
+              </span>
+            )}
+            {appointment.payment_status === 'succeeded' && (
+              <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-800">
+                Paid
+              </span>
+            )}
           </div>
         </div>
       </CardHeader>
