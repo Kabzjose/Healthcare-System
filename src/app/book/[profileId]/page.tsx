@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useDoctor, useDoctorAvailability } from '@/hooks/useDoctors';
@@ -94,36 +94,32 @@ export default function BookAppointmentWizardPage() {
     6: 'saturday',
   };
 
+  useEffect(() => {
+    if (!selectedDate && activeSlots.length > 0 && upcomingDates.length > 0) {
+      const firstAvailableDate = upcomingDates.find((d) =>
+        activeSlots.some((s) => s.day_of_week === dayNamesMap[d.dayNumber])
+      );
+      if (firstAvailableDate) {
+        setSelectedDate(firstAvailableDate.dateStr);
+      }
+    }
+  }, [activeSlots, selectedDate]);
+
   const selectedDateObj = upcomingDates.find((d) => d.dateStr === selectedDate);
   const slotsForSelectedDay = activeSlots.filter(
     (s) => selectedDateObj && s.day_of_week === dayNamesMap[selectedDateObj.dayNumber]
   );
 
-  // Default time slots fallback if doctor hasn't defined specific slots
-  const defaultSlots = [
-    { start: '09:00:00', end: '09:45:00' },
-    { start: '10:00:00', end: '10:45:00' },
-    { start: '11:00:00', end: '11:45:00' },
-    { start: '14:00:00', end: '14:45:00' },
-    { start: '15:00:00', end: '15:45:00' },
-    { start: '16:00:00', end: '16:45:00' },
-  ];
-
-  const availableTimesToDisplay =
-    slotsForSelectedDay.length > 0
-      ? slotsForSelectedDay.map((s) => ({ id: s.id, start: s.start_time, end: s.end_time }))
-      : defaultSlots.map((s, idx) => ({ id: `default-${idx}`, start: s.start, end: s.end }));
-
   const handleConfirmBooking = () => {
-    if (!selectedDate || !selectedTimeSlot) {
+    if (!selectedDate || !selectedTimeSlot || !selectedSlotId) {
       toast.error('Please select date and time slot first.');
       return;
     }
 
     bookAppointment(
       {
-        doctor_id: doctor.user_id,
-        availability_slot_id: selectedSlotId.startsWith('default') ? '' : selectedSlotId,
+        doctor_id: doctor.profile_id,
+        availability_slot_id: selectedSlotId,
         appointment_date: selectedDate,
         reason: reason || 'General Consultation',
       },
@@ -241,15 +237,24 @@ export default function BookAppointmentWizardPage() {
               <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">
                 {upcomingDates.map((item) => {
                   const isSelected = selectedDate === item.dateStr;
+                  const dayHasSlots = activeSlots.some(
+                    (s) => s.day_of_week === dayNamesMap[item.dayNumber]
+                  );
                   return (
                     <button
                       key={item.dateStr}
                       type="button"
-                      onClick={() => setSelectedDate(item.dateStr)}
+                      onClick={() => {
+                        setSelectedDate(item.dateStr);
+                        setSelectedSlotId('');
+                        setSelectedTimeSlot(null);
+                      }}
                       className={`p-3 rounded-2xl text-center border transition-all flex flex-col items-center justify-center space-y-1 ${
                         isSelected
                           ? 'bg-primary-600 text-white border-primary-600 shadow-card font-bold scale-105'
-                          : 'bg-white border-border/70 hover:border-primary-300 text-foreground'
+                          : dayHasSlots
+                          ? 'bg-white border-primary-200 hover:border-primary-400 text-foreground'
+                          : 'bg-slate-50 border-border/50 text-muted-foreground opacity-70'
                       }`}
                     >
                       <span className="text-[10px] uppercase font-bold tracking-wider opacity-80">
@@ -257,6 +262,15 @@ export default function BookAppointmentWizardPage() {
                       </span>
                       <span className="text-lg font-extrabold">{item.dateStr.slice(8)}</span>
                       <span className="text-[10px] opacity-75">{item.formatted.split(',')[0]}</span>
+                      {dayHasSlots ? (
+                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full mt-1 ${
+                          isSelected ? 'bg-white/20 text-white' : 'bg-teal-100 text-teal-800'
+                        }`}>
+                          Available
+                        </span>
+                      ) : (
+                        <span className="text-[9px] text-muted-foreground mt-1">No slots</span>
+                      )}
                     </button>
                   );
                 })}
@@ -280,40 +294,49 @@ export default function BookAppointmentWizardPage() {
               <div>
                 <h2 className="text-xl font-extrabold text-foreground">Step 2: Choose Available Time Slot</h2>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Selected Date: <strong className="text-foreground">{formatDate(selectedDate)}</strong>
+                  Selected Date: <strong className="text-foreground">{formatDate(selectedDate)}</strong> ({selectedDateObj?.dayName})
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {availableTimesToDisplay.map((slot) => {
-                  const isSelected = selectedSlotId === slot.id;
-                  return (
-                    <button
-                      key={slot.id}
-                      type="button"
-                      onClick={() => {
-                        setSelectedSlotId(slot.id);
-                        setSelectedTimeSlot({ start: slot.start, end: slot.end });
-                      }}
-                      className={`p-4 rounded-2xl border transition-all flex items-center justify-center gap-2 font-semibold text-xs ${
-                        isSelected
-                          ? 'bg-teal-600 text-white border-teal-600 shadow-card font-bold scale-105'
-                          : 'bg-white border-border/70 hover:border-teal-400 text-foreground'
-                      }`}
-                    >
-                      <Clock className="h-4 w-4" />
-                      <span>{formatTime(slot.start)} – {formatTime(slot.end)}</span>
-                    </button>
-                  );
-                })}
-              </div>
+              {slotsForSelectedDay.length > 0 ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {slotsForSelectedDay.map((slot) => {
+                    const isSelected = selectedSlotId === slot.id;
+                    return (
+                      <button
+                        key={slot.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedSlotId(slot.id);
+                          setSelectedTimeSlot({ start: slot.start_time, end: slot.end_time });
+                        }}
+                        className={`p-4 rounded-2xl border transition-all flex items-center justify-center gap-2 font-semibold text-xs ${
+                          isSelected
+                            ? 'bg-teal-600 text-white border-teal-600 shadow-card font-bold scale-105'
+                            : 'bg-white border-border/70 hover:border-teal-400 text-foreground'
+                        }`}
+                      >
+                        <Clock className="h-4 w-4" />
+                        <span>{formatTime(slot.start_time)} – {formatTime(slot.end_time)}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="p-6 rounded-2xl bg-amber-50 text-amber-900 border border-amber-200 text-center space-y-2">
+                  <p className="font-bold text-sm">No Available Time Slots</p>
+                  <p className="text-xs text-amber-700 max-w-md mx-auto">
+                    Dr. {doctor.first_name} {doctor.last_name} has no active consultation slots on {selectedDateObj?.dayName}s. Please go back to Step 1 and select an available day.
+                  </p>
+                </div>
+              )}
 
               <div className="flex items-center justify-between pt-4 border-t border-border/40">
                 <Button variant="outline" onClick={() => setStep(1)} className="rounded-xl font-bold">
                   <ArrowLeft className="mr-1.5 h-4 w-4" /> Back
                 </Button>
                 <Button
-                  disabled={!selectedTimeSlot}
+                  disabled={!selectedTimeSlot || !selectedSlotId || slotsForSelectedDay.length === 0}
                   onClick={() => setStep(3)}
                   className="rounded-xl bg-primary-600 hover:bg-primary-700 font-bold px-6 gap-2"
                 >
