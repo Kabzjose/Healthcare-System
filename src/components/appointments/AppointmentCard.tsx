@@ -38,7 +38,7 @@ export const AppointmentCard = ({
 
   const needsPayment =
     appointment.status === 'confirmed' &&
-    !isPaid &&
+    appointment.payment_status !== 'succeeded' &&
     appointment.payment_status !== 'refunded';
 
   const statusBorderColor = isConfirmed
@@ -86,18 +86,23 @@ export const AppointmentCard = ({
           </div>
 
           <div className="flex flex-col items-end gap-1 shrink-0">
-            <AppointmentStatusBadge status={appointment.status} />
-            {isPaid ? (
-              <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-700">
-                <CheckCircle2 className="h-3 w-3" />
-                Paid
-              </span>
-            ) : appointment.status === 'confirmed' ? (
-              <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium bg-orange-100 text-orange-700">
-                <CreditCard className="h-3 w-3" />
-                Payment due
-              </span>
-            ) : null}
+           <AppointmentStatusBadge status={appointment.status} />
+
+          {/* Only show payment badge if payment needs attention */}
+          {appointment.payment_status === 'pending' && appointment.status === 'confirmed' && (
+            <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium bg-orange-100 text-orange-700">
+              <CreditCard className="h-3 w-3" />
+              Payment due
+            </span>
+          )}
+
+          {appointment.payment_status === 'succeeded' && (
+            <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-700">
+              <CheckCircle2 className="h-3 w-3" />
+              Paid
+            </span>
+          )}
+
           </div>
         </div>
       </CardHeader>
