@@ -9,148 +9,87 @@ import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { PaymentStatusBadge } from '@/components/appointments/StatusBadge';
 import { useMyPayments } from '@/hooks/usePayments';
-import { Payment } from '@/types';
+import { Payment, PaginationMeta } from '@/types';
 import { formatCurrency, formatDateTime } from '@/lib/utils';
-import { PaginationMeta } from '@/types';
 
 // ── Single payment row ────────────────────────────────────────────────────────
-const PaymentRow = ({ payment }: { payment: Payment }) => {
-  return (
-    <Card>
-      <CardContent className="pt-4 pb-4">
-        <div className="flex items-start justify-between gap-4">
-          {/* Left — provider icon + details */}
-          <div className="flex items-start gap-3">
-            <div className="rounded-full bg-muted p-2 shrink-0">
-              {payment.provider === 'mpesa' ? (
-                <Smartphone className="h-4 w-4 text-green-600" />
-              ) : (
-                <CreditCard className="h-4 w-4 text-blue-600" />
-              )}
-            </div>
-
-            <div className="space-y-1">
-              <p className="font-medium capitalize">
-                {payment.provider === 'mpesa' ? 'M-Pesa' : 'Card'} Payment
-              </p>
-
-              {payment.provider_reference && (
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Hash className="h-3 w-3" />
-                  <span className="font-mono">{payment.provider_reference}</span>
-                </div>
-              )}
-
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Calendar className="h-3 w-3" />
-                <span>{formatDateTime(payment.created_at)}</span>
-              </div>
-
-              {payment.paid_at && (
-                <p className="text-xs text-green-600">
-                  Paid on {formatDateTime(payment.paid_at)}
-                </p>
-              )}
-            </div>
+const PaymentRow = ({ payment }: { payment: Payment }) => (
+  <Card>
+    <CardContent className="pt-4 pb-4">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <div className="rounded-full bg-muted p-2 shrink-0">
+            {payment.provider === 'mpesa' ? (
+              <Smartphone className="h-4 w-4 text-green-600" />
+            ) : (
+              <CreditCard className="h-4 w-4 text-blue-600" />
+            )}
           </div>
-
-          {/* Right — amount + status */}
-          <div className="text-right shrink-0 space-y-1.5">
-            <p className="font-bold text-lg">
-              {formatCurrency(payment.amount, payment.currency)}
+          <div className="space-y-1">
+            <p className="font-medium">
+              {payment.provider === 'mpesa' ? 'M-Pesa' : 'Card'} Payment
             </p>
-            <PaymentStatusBadge status={payment.status} />
+            {payment.provider_reference && (
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Hash className="h-3 w-3" />
+                <span className="font-mono">{payment.provider_reference}</span>
+              </div>
+            )}
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Calendar className="h-3 w-3" />
+              <span>{formatDateTime(payment.created_at)}</span>
+            </div>
+            {payment.paid_at && (
+              <p className="text-xs text-green-600">
+                Paid on {formatDateTime(payment.paid_at)}
+              </p>
+            )}
           </div>
         </div>
-      </CardContent>
-    </Card>
-  );
-};
+        <div className="text-right shrink-0 space-y-1.5">
+          <p className="font-bold text-lg">
+            {formatCurrency(payment.amount, payment.currency)}
+          </p>
+          <PaymentStatusBadge status={payment.status} />
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+);
 
-// ── Payment list with pagination ──────────────────────────────────────────────
-const PaymentList = ({
-  status,
-}: {
-  status?: 'pending' | 'succeeded' | 'failed' | 'refunded';
-}) => {
+// ── Page ──────────────────────────────────────────────────────────────────────
+export default function PatientPaymentsPage() {
   const [page, setPage] = useState(1);
-  const { data, isLoading } = useMyPayments({ status, page });
+  const [activeTab, setActiveTab] = useState<string>('all');
+
+  // Single query — driven by active tab and page
+  const { data, isLoading } = useMyPayments({
+    status: activeTab === 'all' ? undefined : activeTab as any,
+    page,
+  });
 
   const payments = data?.data ?? [];
   const meta = data?.meta as PaginationMeta | undefined;
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center py-12">
-        <LoadingSpinner />
-      </div>
-    );
-  }
+  // For summary — fetch all without status filter (page 1, large limit)
+  const { data: summaryData } = useMyPayments({ page: 1 });
+  const allPayments = summaryData?.data ?? [];
 
-  if (payments.length === 0) {
-    return (
-      <EmptyState
-        icon={CreditCard}
-        title="No payments found"
-        description={
-          status
-            ? `You have no ${status} payments`
-            : 'Your payment history will appear here'
-        }
-      />
-    );
-  }
-
-  return (
-    <div className="space-y-3">
-      {payments.map((payment) => (
-        <PaymentRow key={payment.id} payment={payment} />
-      ))}
-
-      {/* Pagination */}
-      {meta && meta.totalPages > 1 && (
-        <div className="flex items-center justify-center gap-3 pt-4">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={page === 1}
-            onClick={() => setPage((p) => p - 1)}
-          >
-            Previous
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            Page {meta.page} of {meta.totalPages}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={page === meta.totalPages}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            Next
-          </Button>
-        </div>
-      )}
-    </div>
-  );
-};
-
-// ── Page ──────────────────────────────────────────────────────────────────────
-export default function PatientPaymentsPage() {
-  const { data: allData } = useMyPayments();
-  const payments = allData?.data ?? [];
-
-  // Summary counts
-  const succeeded = payments.filter((p) => p.status === 'succeeded').length;
-  const pending = payments.filter((p) => p.status === 'pending').length;
-  const failed = payments.filter((p) => p.status === 'failed').length;
-  const totalSpent = payments
+  const succeeded = allPayments.filter((p) => p.status === 'succeeded').length;
+  const pending = allPayments.filter((p) => p.status === 'pending').length;
+  const failed = allPayments.filter((p) => p.status === 'failed').length;
+  const totalSpent = allPayments
     .filter((p) => p.status === 'succeeded')
     .reduce((sum, p) => sum + Number(p.amount), 0);
 
+  // Reset page when tab changes
+  const handleTabChange = (val: string) => {
+    setActiveTab(val);
+    setPage(1);
+  };
+
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Payment History</h1>
         <p className="text-muted-foreground mt-1">
@@ -170,7 +109,6 @@ export default function PatientPaymentsPage() {
             </p>
           </CardContent>
         </Card>
-
         <Card>
           <CardContent className="pt-4 pb-4">
             <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
@@ -179,7 +117,6 @@ export default function PatientPaymentsPage() {
             <p className="text-xl font-bold mt-1 text-green-600">{succeeded}</p>
           </CardContent>
         </Card>
-
         <Card>
           <CardContent className="pt-4 pb-4">
             <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
@@ -188,7 +125,6 @@ export default function PatientPaymentsPage() {
             <p className="text-xl font-bold mt-1 text-yellow-600">{pending}</p>
           </CardContent>
         </Card>
-
         <Card>
           <CardContent className="pt-4 pb-4">
             <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
@@ -199,8 +135,8 @@ export default function PatientPaymentsPage() {
         </Card>
       </div>
 
-      {/* Tabs by status */}
-      <Tabs defaultValue="all">
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={handleTabChange}>
         <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-flex">
           <TabsTrigger value="all">All</TabsTrigger>
           <TabsTrigger value="succeeded">Paid</TabsTrigger>
@@ -208,20 +144,53 @@ export default function PatientPaymentsPage() {
           <TabsTrigger value="failed">Failed</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="all" className="mt-6">
-          <PaymentList />
-        </TabsContent>
+        <TabsContent value={activeTab} className="mt-6">
+          {isLoading ? (
+            <div className="flex justify-center py-12">
+              <LoadingSpinner />
+            </div>
+          ) : payments.length === 0 ? (
+            <EmptyState
+              icon={CreditCard}
+              title="No payments found"
+              description={
+                activeTab !== 'all'
+                  ? `You have no ${activeTab} payments`
+                  : 'Your payment history will appear here after your first payment'
+              }
+            />
+          ) : (
+            <div className="space-y-3">
+              {payments.map((payment) => (
+                <PaymentRow key={payment.id} payment={payment} />
+              ))}
 
-        <TabsContent value="succeeded" className="mt-6">
-          <PaymentList status="succeeded" />
-        </TabsContent>
-
-        <TabsContent value="pending" className="mt-6">
-          <PaymentList status="pending" />
-        </TabsContent>
-
-        <TabsContent value="failed" className="mt-6">
-          <PaymentList status="failed" />
+              {/* Pagination */}
+              {meta && meta.totalPages > 1 && (
+                <div className="flex items-center justify-center gap-3 pt-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={page === 1}
+                    onClick={() => setPage((p) => p - 1)}
+                  >
+                    Previous
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    Page {meta.page} of {meta.totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={page === meta.totalPages}
+                    onClick={() => setPage((p) => p + 1)}
+                  >
+                    Next
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </div>
