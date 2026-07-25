@@ -64,7 +64,7 @@ export const DoctorCard = ({ doctor }: DoctorCardProps) => {
         <Button variant="outline" size="sm" asChild className="flex-1 rounded-xl text-xs">
           <Link href={`/doctors/${doctor.profile_id}`}>View Profile</Link>
         </Button>
-        <Button size="sm" asChild className="flex-1 rounded-xl bg-primary-600 hover:bg-primary-700 text-xs font-semibold gap-1">
+        <Button size="sm" asChild className="flex-1 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold shadow-sm hover:shadow-md text-xs gap-1">
           <Link href={`/book/${doctor.profile_id}`}>
             Book Now <ArrowRight className="h-3 w-3" />
           </Link>

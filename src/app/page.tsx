@@ -116,12 +116,12 @@ export default function LandingPage() {
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
-                  <Button asChild size="lg" className="w-full sm:w-auto rounded-full px-8 bg-primary-600 hover:bg-primary-700 shadow-card text-base font-bold h-13">
+                  <Button asChild size="lg" className="w-full sm:w-auto rounded-full px-9 bg-gradient-to-r from-blue-600 via-primary-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold shadow-lg shadow-blue-500/35 hover:shadow-xl hover:shadow-blue-500/50 hover:-translate-y-1 transition-all h-14 text-base">
                     <Link href="/doctors">
                       Book Appointment <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
                   </Button>
-                  <Button asChild variant="outline" size="lg" className="w-full sm:w-auto rounded-full px-8 border-primary-200 text-primary-800 hover:bg-primary-50 text-base font-semibold h-13">
+                  <Button asChild variant="outline" size="lg" className="w-full sm:w-auto rounded-full px-9 border-2 border-primary-600 text-primary-700 hover:bg-primary-50 text-base font-extrabold h-14 shadow-sm hover:shadow-md transition-all">
                     <Link href="/about">Learn More</Link>
                   </Button>
                 </div>

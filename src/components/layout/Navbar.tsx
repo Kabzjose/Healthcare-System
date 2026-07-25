@@ -139,10 +139,10 @@ export const Navbar = () => {
               </div>
             ) : (
               <div className="hidden md:flex items-center gap-3">
-                <Button variant="ghost" asChild size="sm" className="font-semibold text-primary-700 hover:text-primary-800">
+                <Button variant="outline" asChild size="sm" className="rounded-full px-5 border-2 border-primary-600 text-primary-700 hover:bg-primary-50 font-extrabold h-10 shadow-xs">
                   <Link href="/login">Sign In</Link>
                 </Button>
-                <Button asChild size="sm" className="rounded-full px-5 bg-primary-600 hover:bg-primary-700 shadow-card font-semibold">
+                <Button asChild size="sm" className="rounded-full px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold shadow-md shadow-blue-500/25 hover:shadow-lg transition-all h-10">
                   <Link href="/doctors">
                     <Calendar className="mr-1.5 h-4 w-4" />
                     Book Appointment
