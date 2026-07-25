@@ -6,10 +6,16 @@ import { Payment, PaginatedResponse, PaginationMeta } from '@/types';
 
 // ── Patient payment history ───────────────────────────────────────────────────
 export const useMyPayments = (filters: { status?: string; page?: number } = {}) => {
+  // Strip undefined values so { status: undefined, page: 1 } and { page: 1 }
+  // produce the same cache key — preventing silent cache misses.
+  const cleanFilters = Object.fromEntries(
+    Object.entries(filters).filter(([, v]) => v !== undefined)
+  ) as { status?: string; page?: number };
+
   return useQuery({
-    queryKey: ['payments', 'my', filters],
+    queryKey: ['payments', 'my', cleanFilters],
     queryFn: async () => {
-      const response = await api.get('/payments/my', { params: filters });
+      const response = await api.get('/payments/my', { params: cleanFilters });
       return {
         data: response.data.data as Payment[],
         meta: response.data.meta as PaginationMeta,
