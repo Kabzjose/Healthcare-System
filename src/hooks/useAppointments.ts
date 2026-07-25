@@ -15,7 +15,8 @@ export const appointmentKeys = {
 
 // ── Patient's appointments ────────────────────────────────────────────────────
 export const usePatientAppointments = (
-  filters: { status?: string; page?: number } = {}
+  filters: { status?: string; page?: number } = {},
+  options: { refetchInterval?: number } = {}
 ) => {
   return useQuery({
     queryKey: appointmentKeys.myPatient(filters as Record<string, unknown>),
@@ -26,6 +27,7 @@ export const usePatientAppointments = (
         meta: response.data.meta as PaginationMeta,
       };
     },
+    refetchInterval: options.refetchInterval,
   });
 };
 
