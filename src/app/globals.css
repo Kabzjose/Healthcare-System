@@ -9,16 +9,16 @@
 @theme inline {
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
-  --color-primary-50: #EBF4FB;
-  --color-primary-100: #C8E2F5;
-  --color-primary-200: #91C3EA;
-  --color-primary-300: #5AA4DF;
-  --color-primary-400: #2385D4;
-  --color-primary-500: #1A6EBD;
-  --color-primary-600: #155A9E;
-  --color-primary-700: #104680;
-  --color-primary-800: #0B3261;
-  --color-primary-900: #061E42;
+  --color-primary-50: #EFF6FF;
+  --color-primary-100: #DBEAFE;
+  --color-primary-200: #BFDBFE;
+  --color-primary-300: #93C5FD;
+  --color-primary-400: #60A5FA;
+  --color-primary-500: #3B82F6;
+  --color-primary-600: #2563EB;
+  --color-primary-700: #1D4ED8;
+  --color-primary-800: #1E40AF;
+  --color-primary-900: #1E3A8A;
 
   --color-teal-DEFAULT: #0D9488;
   --color-teal-50: #F0FDFA;
@@ -79,19 +79,19 @@
   --card-foreground: 220 15% 12%;
   --popover: 0 0% 100%;
   --popover-foreground: 220 15% 12%;
-  --primary: 210 75% 42%;
+  --primary: 221 83% 53%;
   --primary-foreground: 0 0% 100%;
   --secondary: 175 80% 32%;
   --secondary-foreground: 0 0% 100%;
   --muted: 220 14% 96%;
   --muted-foreground: 220 10% 46%;
-  --accent: 210 75% 95%;
-  --accent-foreground: 210 75% 30%;
+  --accent: 217 91% 97%;
+  --accent-foreground: 221 83% 45%;
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
   --border: 220 13% 91%;
   --input: 220 13% 91%;
-  --ring: 210 75% 42%;
+  --ring: 221 83% 53%;
   --radius: 0.75rem;
 
   --sidebar: 0 0% 100%;
