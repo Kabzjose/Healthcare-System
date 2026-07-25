@@ -37,7 +37,10 @@ export default function PatientAppointmentsPage() {
   const [showPaymentChoice, setShowPaymentChoice] = useState(false);
   const [showMpesa, setShowMpesa] = useState(false);
 
-  const { data, isLoading } = usePatientAppointments({ status: activeTab });
+  const { data, isLoading } = usePatientAppointments(
+  { status: activeTab },
+  { refetchInterval: activeTab === 'confirmed' ? 10000 : undefined }
+);
   const { mutate: cancelAppointment, isPending: isCancelling } = useCancelAppointment();
   const { mutate: stripeCheckout, isPending: isCheckingOut } = useCreateCheckoutSession();
 
