@@ -19,7 +19,7 @@ import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
 import { ErrorMessage } from '@/components/shared/ErrorMessage';
 import { useBookAppointment } from '@/hooks/useAppointments';
 import { AvailabilitySlot, DoctorProfile } from '@/types';
-import { formatTime, formatCurrency, getNextDateForDay, cn } from '@/lib/utils';
+import { formatTime, formatCurrency, getNextDateForDay, getMinBookingDate, cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { AxiosError } from 'axios';
 
@@ -181,7 +181,7 @@ export const BookingModal = ({
                   id="date"
                   type="date"
                   value={selectedDate}
-                  min={new Date().toISOString().split('T')[0]}
+                  min={getMinBookingDate()}
                   onChange={(e) => setSelectedDate(e.target.value)}
                   className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 />

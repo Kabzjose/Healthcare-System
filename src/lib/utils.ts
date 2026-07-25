@@ -51,18 +51,26 @@ export const getGreeting = (): string => {
   return 'Good evening';
 };
 
+export const getMinBookingDate = (): string => {
+  const date = new Date();
+  date.setDate(date.getDate() + 3); // minimum 3 days from today
+  return date.toISOString().split('T')[0]; // returns YYYY-MM-DD
+};
+
 // ── Day of week helpers ───────────────────────────────────────────────────────
-// Given a day name like "monday", return the next date that falls on that day
+// Given a day name like "monday", return the next date that falls on that day (at least 3 days away)
 export const getNextDateForDay = (dayName: string): string => {
   const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
   const targetDay = days.indexOf(dayName.toLowerCase());
-  const today = new Date();
-  const todayDay = today.getDay();
-  let daysUntil = targetDay - todayDay;
-  if (daysUntil <= 0) daysUntil += 7;
-  const nextDate = new Date(today);
-  nextDate.setDate(today.getDate() + daysUntil);
-  return format(nextDate, 'yyyy-MM-dd');
+  const minDate = new Date();
+  minDate.setDate(minDate.getDate() + 3); // start searching from 3 days ahead
+  
+  // Find the next occurrence of targetDay that is at least 3 days away
+  const current = new Date(minDate);
+  while (current.getDay() !== targetDay) {
+    current.setDate(current.getDate() + 1);
+  }
+  return current.toISOString().split('T')[0];
 };
 
 // ── Status colour maps — used in StatusBadge ─────────────────────────────────

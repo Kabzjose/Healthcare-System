@@ -32,7 +32,8 @@ export const usePatientAppointments = (
 };
 
 export const useDoctorAppointments = (
-  filters: { status?: string; date?: string; page?: number } = {}
+  filters: { status?: string; date?: string; page?: number } = {},
+  options: { enabled?: boolean } = {}
 ) => {
   return useQuery({
     queryKey: appointmentKeys.myDoctor(filters as Record<string, unknown>),
@@ -43,6 +44,7 @@ export const useDoctorAppointments = (
         meta: response.data.meta as PaginationMeta,
       };
     },
+    enabled: options.enabled !== false,
   });
 };
 

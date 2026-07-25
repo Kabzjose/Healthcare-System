@@ -10,6 +10,8 @@ import { useDoctorAppointments, useUpdateAppointmentStatus } from '@/hooks/useAp
 import { useToast } from '@/hooks/use-toast';
 import { AxiosError } from 'axios';
 
+import { useAuthStore } from '@/store/authStore';
+
 const tabs = [
   { value: 'pending', label: 'Pending' },
   { value: 'confirmed', label: 'Confirmed' },
@@ -19,10 +21,12 @@ const tabs = [
 ] as const;
 
 export default function DoctorAppointmentsPage() {
+  const { user } = useAuthStore();
+  const isDoctor = user?.role === 'doctor';
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<string>('pending');
 
-  const { data, isLoading } = useDoctorAppointments({ status: activeTab });
+  const { data, isLoading } = useDoctorAppointments({ status: activeTab }, { enabled: isDoctor });
   const { mutate: updateStatus, isPending: isUpdating } = useUpdateAppointmentStatus();
 
   const appointments = data?.data ?? [];

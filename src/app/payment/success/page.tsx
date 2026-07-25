@@ -13,13 +13,16 @@ export default function PaymentSuccessPage() {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    // Wait 3 seconds for the webhook to fire and update the DB
-    // then invalidate all cached queries so fresh data loads
-    const timer = setTimeout(async () => {
-      await queryClient.invalidateQueries({ queryKey: ['appointments'] });
-      await queryClient.invalidateQueries({ queryKey: ['payments'] });
+    // Immediate invalidation
+    queryClient.invalidateQueries({ queryKey: ['appointments'] });
+    queryClient.invalidateQueries({ queryKey: ['payments'] });
+
+    // Second invalidation after webhook has time to process
+    const timer = setTimeout(() => {
+      queryClient.invalidateQueries({ queryKey: ['appointments'] });
+      queryClient.invalidateQueries({ queryKey: ['payments'] });
       setChecking(false);
-    }, 3000);
+    }, 5000);
 
     return () => clearTimeout(timer);
   }, [queryClient]);

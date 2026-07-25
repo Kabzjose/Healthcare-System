@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Calendar, Clock, User, Stethoscope, Check, X, CreditCard } from 'lucide-react';
+import { Calendar, Clock, User, Stethoscope, Check, X, CreditCard, CheckCircle2 } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AppointmentStatusBadge } from './StatusBadge';
@@ -32,9 +32,9 @@ export const AppointmentCard = ({
   const isCancellable = isPending || isConfirmed;
   
   const needsPayment =
+    appointment.status === 'confirmed' &&
     appointment.payment_status !== 'succeeded' &&
-    appointment.payment_status !== 'refunded' &&
-    appointment.status === 'confirmed';
+    appointment.payment_status !== 'refunded';
 
   const statusBorderColor = isConfirmed
     ? 'border-l-primary-500'
@@ -82,13 +82,15 @@ export const AppointmentCard = ({
 
           <div className="flex flex-col items-end gap-1 shrink-0">
             <AppointmentStatusBadge status={appointment.status} />
-            {appointment.payment_status === 'pending' && appointment.status === 'confirmed' && (
-              <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold bg-yellow-100 text-yellow-800">
-                Payment Due
+            {appointment.status === 'confirmed' && appointment.payment_status !== 'succeeded' && (
+              <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium bg-orange-100 text-orange-700">
+                <CreditCard className="h-3 w-3" />
+                Payment due
               </span>
             )}
             {appointment.payment_status === 'succeeded' && (
-              <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold bg-emerald-100 text-emerald-800">
+              <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-700">
+                <CheckCircle2 className="h-3 w-3" />
                 Paid
               </span>
             )}

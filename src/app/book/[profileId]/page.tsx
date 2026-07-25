@@ -71,10 +71,10 @@ export default function BookAppointmentWizardPage() {
   // Group slots by day or list them
   const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-  // Helper date generation for next 14 days
+  // Helper date generation for next 14 days starting at least 3 days in advance
   const upcomingDates = Array.from({ length: 14 }).map((_, idx) => {
     const d = new Date();
-    d.setDate(d.getDate() + idx + 1);
+    d.setDate(d.getDate() + idx + 3);
     const yyyy = d.getFullYear();
     const mm = String(d.getMonth() + 1).padStart(2, '0');
     const dd = String(d.getDate()).padStart(2, '0');

@@ -15,10 +15,20 @@ import { AxiosError } from 'axios';
 export default function DoctorDashboardPage() {
   const { user } = useAuthStore();
   const { toast } = useToast();
+  const isDoctor = user?.role === 'doctor';
 
-  const { data: pendingData, isLoading: loadingPending } = useDoctorAppointments({ status: 'pending' });
-  const { data: confirmedData } = useDoctorAppointments({ status: 'confirmed' });
-  const { data: completedData } = useDoctorAppointments({ status: 'completed' });
+  const { data: pendingData, isLoading: loadingPending } = useDoctorAppointments(
+    { status: 'pending' },
+    { enabled: isDoctor }
+  );
+  const { data: confirmedData } = useDoctorAppointments(
+    { status: 'confirmed' },
+    { enabled: isDoctor }
+  );
+  const { data: completedData } = useDoctorAppointments(
+    { status: 'completed' },
+    { enabled: isDoctor }
+  );
 
   const { mutate: updateStatus, isPending: isUpdating } = useUpdateAppointmentStatus();
 
