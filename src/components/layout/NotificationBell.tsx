@@ -70,7 +70,7 @@ export function NotificationBell() {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80 p-0 rounded-2xl shadow-card-strong">
+      <DropdownMenuContent align="end" className="w-80 p-0 rounded-2xl shadow-card-strong bg-white dark:bg-slate-900 border border-border/80 opacity-100 z-50">
         <div className="flex items-center justify-between border-b px-4 py-3 bg-muted/30">
           <div className="flex items-center gap-2">
             <span className="font-bold text-sm">Notifications</span>
