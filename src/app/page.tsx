@@ -421,10 +421,10 @@ export default function LandingPage() {
               Join thousands of patients who trust MediCare+ for fast, reliable, and professional healthcare services.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
-              <Button asChild size="lg" className="w-full sm:w-auto rounded-full px-8 bg-white text-primary-700 hover:bg-primary-50 font-bold h-13 text-base shadow-card">
+              <Button asChild size="lg" className="w-full sm:w-auto rounded-full px-9 bg-white text-primary-700 hover:bg-primary-50 font-extrabold h-14 text-base shadow-lg hover:-translate-y-0.5 transition-all">
                 <Link href="/doctors">Book Appointment</Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="w-full sm:w-auto rounded-full px-8 border-white text-white hover:bg-white/10 font-semibold h-13 text-base">
+              <Button asChild variant="outline" size="lg" className="w-full sm:w-auto rounded-full px-9 border-2 border-white bg-transparent text-white hover:bg-white hover:text-primary-700 font-extrabold h-14 text-base shadow-sm transition-all">
                 <Link href="/contact">Contact Us</Link>
               </Button>
             </div>
