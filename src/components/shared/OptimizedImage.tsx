@@ -16,9 +16,9 @@ export function OptimizedImage({
   containerClassName,
   fallbackText = 'MC',
   priority = false,
+  fill,
   ...props
 }: OptimizedImageProps) {
-  const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
 
   const getInitials = (text: string) => {
@@ -30,33 +30,30 @@ export function OptimizedImage({
       .slice(0, 2);
   };
 
+  const isStringSrc = typeof src === 'string';
+  const hasNoSrc = !src || (isStringSrc && src.trim() === '');
+
+  if (isError || hasNoSrc) {
+    return (
+      <div className={cn('flex h-full w-full items-center justify-center bg-primary-100 text-primary-700 font-semibold text-sm', containerClassName)}>
+        {getInitials(fallbackText || alt)}
+      </div>
+    );
+  }
+
   return (
-    <div className={cn('relative overflow-hidden bg-muted', containerClassName)}>
-      {isLoading && (
-        <div className="absolute inset-0 z-10 animate-pulse bg-muted-foreground/20" />
-      )}
-      {isError ? (
-        <div className="flex h-full w-full items-center justify-center bg-primary-100 text-primary-700 font-semibold text-sm">
-          {getInitials(fallbackText || alt)}
-        </div>
-      ) : (
-        <Image
-          src={src}
-          alt={alt}
-          priority={priority}
-          className={cn(
-            'transition-opacity duration-300',
-            isLoading ? 'opacity-0' : 'opacity-100',
-            className
-          )}
-          onLoad={() => setIsLoading(false)}
-          onError={() => {
-            setIsLoading(false);
-            setIsError(true);
-          }}
-          {...props}
-        />
-      )}
+    <div className={cn('relative overflow-hidden', fill ? 'w-full h-full' : '', containerClassName)}>
+      {/* Standard HTML img for foolproof cross-origin and local asset rendering */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={isStringSrc ? (src as string) : undefined}
+        alt={alt}
+        className={cn(
+          fill ? 'absolute inset-0 w-full h-full object-cover' : 'w-full h-auto object-cover',
+          className
+        )}
+        onError={() => setIsError(true)}
+      />
     </div>
   );
 }

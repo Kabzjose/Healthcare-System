@@ -16,6 +16,8 @@ import { Appointment } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { AxiosError } from 'axios';
 
+import { getGreeting } from '@/lib/utils';
+
 export default function PatientDashboardPage() {
   const { user } = useAuthStore();
   const { toast } = useToast();
@@ -69,7 +71,7 @@ export default function PatientDashboardPage() {
               Patient Portal
             </span>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-              Good morning, {user?.first_name} 👋
+              {getGreeting()}, {user?.first_name} 👋
             </h1>
             <p className="text-sm text-primary-100 max-w-xl leading-relaxed">
               Here&apos;s an overview of your upcoming appointments, medical history, and health recommendations.

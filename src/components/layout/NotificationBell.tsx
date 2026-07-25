@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Bell, Check, Calendar, CreditCard, Info } from 'lucide-react';
+import { Bell, Calendar, CreditCard, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -15,7 +15,6 @@ interface NotificationItem {
   id: string;
   title: string;
   message: string;
-  time: string;
   read: boolean;
   type: 'appointment' | 'payment' | 'system';
 }
@@ -23,27 +22,24 @@ interface NotificationItem {
 const initialNotifications: NotificationItem[] = [
   {
     id: '1',
-    title: 'Appointment Confirmed',
-    message: 'Your appointment with Dr. Kamau has been confirmed.',
-    time: '10m ago',
+    title: 'Appointment Status',
+    message: 'Your appointment details are updated in your dashboard.',
     read: false,
     type: 'appointment',
   },
   {
     id: '2',
-    title: 'Payment Received',
-    message: 'M-Pesa payment of Ksh 2,500 processed successfully.',
-    time: '1h ago',
+    title: 'Payment Receipt',
+    message: 'Digital receipts for consultations are available in billing.',
     read: false,
     type: 'payment',
   },
   {
     id: '3',
-    title: 'Upcoming Reminder',
-    message: 'Reminder: Scheduled consultation tomorrow at 10:00 AM.',
-    time: '1d ago',
+    title: 'System Notice',
+    message: 'Welcome to MediCare+ online appointment system.',
     read: true,
-    type: 'appointment',
+    type: 'system',
   },
 ];
 
@@ -115,9 +111,8 @@ export function NotificationBell() {
                 <div className="flex-1 space-y-1">
                   <div className="flex items-center justify-between">
                     <p className="font-semibold text-foreground">{n.title}</p>
-                    <span className="text-[10px] text-muted-foreground">{n.time}</span>
                   </div>
-                  <p className="text-muted-foreground leading-relaxed">{n.message}</p>
+                  <p className="text-muted-foreground leading-relaxed text-[11px]">{n.message}</p>
                 </div>
               </DropdownMenuItem>
             ))

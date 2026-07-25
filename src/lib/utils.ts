@@ -44,6 +44,13 @@ export const capitalize = (str: string): string => {
   return str.charAt(0).toUpperCase() + str.slice(1).replace(/_/g, ' ');
 };
 
+export const getGreeting = (): string => {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good morning';
+  if (hour < 17) return 'Good afternoon';
+  return 'Good evening';
+};
+
 // ── Day of week helpers ───────────────────────────────────────────────────────
 // Given a day name like "monday", return the next date that falls on that day
 export const getNextDateForDay = (dayName: string): string => {
