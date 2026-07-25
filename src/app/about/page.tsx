@@ -10,7 +10,7 @@ import { Heart, ShieldCheck, Award, Lightbulb, Target, Eye, Calendar, ArrowRight
 import { useDoctors } from '@/hooks/useDoctors';
 
 export default function AboutPage() {
-  const { data: doctorsData } = useDoctors({ limit: 4 });
+  const { data: doctorsData } = useDoctors({});
   const doctors = doctorsData?.data ?? [];
 
   return (

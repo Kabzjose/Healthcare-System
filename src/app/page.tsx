@@ -87,7 +87,7 @@ const testimonials = [
 ];
 
 export default function LandingPage() {
-  const { data: doctorsData } = useDoctors({ limit: 4 });
+  const { data: doctorsData } = useDoctors({});
   const doctors = doctorsData?.data ?? [];
 
   return (

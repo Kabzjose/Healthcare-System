@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useDoctor, useDoctorAvailability } from '@/hooks/useDoctors';
 import { useBookAppointment } from '@/hooks/useAppointments';
+import { DayOfWeek } from '@/types';
 import { Navbar } from '@/components/layout/Navbar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -83,9 +84,19 @@ export default function BookAppointmentWizardPage() {
     return { dateStr, dayName, dayNumber, formatted: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' }) };
   });
 
+  const dayNamesMap: Record<number, DayOfWeek> = {
+    0: 'sunday',
+    1: 'monday',
+    2: 'tuesday',
+    3: 'wednesday',
+    4: 'thursday',
+    5: 'friday',
+    6: 'saturday',
+  };
+
   const selectedDateObj = upcomingDates.find((d) => d.dateStr === selectedDate);
   const slotsForSelectedDay = activeSlots.filter(
-    (s) => selectedDateObj && s.day_of_week === selectedDateObj.dayNumber
+    (s) => selectedDateObj && s.day_of_week === dayNamesMap[selectedDateObj.dayNumber]
   );
 
   // Default time slots fallback if doctor hasn't defined specific slots
@@ -111,10 +122,9 @@ export default function BookAppointmentWizardPage() {
 
     bookAppointment(
       {
-        doctor_id: doctor.doctor_id,
+        doctor_id: doctor.user_id,
+        availability_slot_id: selectedSlotId.startsWith('default') ? '' : selectedSlotId,
         appointment_date: selectedDate,
-        start_time: selectedTimeSlot.start,
-        end_time: selectedTimeSlot.end,
         reason: reason || 'General Consultation',
       },
       {
