@@ -59,3 +59,10 @@ export const useAuthStore = create<AuthState>()(
     }
   )
 );
+
+// ── Demo account detection ─────────────────────────────────────────────────────
+// Pure helper — no store state changes needed. Detection is email-based only.
+export const isDemoAccount = (email?: string | null): boolean => {
+  if (!email) return false;
+  return ['demo.patient@medicare.com', 'jane.wangui@medicare.com'].includes(email);
+};

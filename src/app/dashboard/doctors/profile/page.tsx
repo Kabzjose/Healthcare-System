@@ -23,6 +23,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AxiosError } from 'axios';
 import { useState } from 'react';
 import { formatCurrency } from '@/lib/utils';
+import { useAuthStore, isDemoAccount } from '@/store/authStore';
 
 // ── Validation schema ─────────────────────────────────────────────────────────
 const profileSchema = z.object({
@@ -82,6 +83,8 @@ const SPECIALIZATIONS = [
 export default function DoctorProfilePage() {
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
+  const { user } = useAuthStore();
+  const isDemo = isDemoAccount(user?.email);
 
   // Fetch existing profile — will return 404 if not created yet
   const { data: profile, isLoading, error } = useMyDoctorProfile();
@@ -131,6 +134,14 @@ export default function DoctorProfilePage() {
   }, [hasProfile, isEditing, loadingAvailability, mySlots, router]);
 
   const onSubmit = async (values: ProfileFormValues) => {
+    if (isDemo) {
+      toast({
+        title: 'Demo account',
+        description: 'Profile changes are not saved in demo mode to keep sample data intact for other visitors.',
+      });
+      setIsEditing(false);
+      return;
+    }
     try {
       if (hasProfile) {
         await updateProfile({

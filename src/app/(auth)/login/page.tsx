@@ -1,10 +1,12 @@
 'use client';
 
+import { Suspense, useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Plus, CheckCircle2, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Plus, CheckCircle2, ShieldCheck, ArrowRight, Stethoscope, UserRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,6 +15,7 @@ import { ErrorMessage } from '@/components/shared/ErrorMessage';
 import { OptimizedImage } from '@/components/shared/OptimizedImage';
 import { useAuth } from '@/hooks/useAuth';
 import { AxiosError } from 'axios';
+import { cn } from '@/lib/utils';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -21,8 +24,13 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-export default function LoginPage() {
+// Inner component that uses useSearchParams (must be wrapped in Suspense)
+function LoginForm() {
   const { loginAsync, isLoggingIn, loginError } = useAuth();
+  const searchParams = useSearchParams();
+  const isDemoIntent = searchParams.get('demo') === 'true';
+
+  const [demoLoading, setDemoLoading] = useState<'patient' | 'doctor' | null>(null);
 
   const {
     register,
@@ -32,6 +40,22 @@ export default function LoginPage() {
 
   const onSubmit = async (values: LoginFormValues) => {
     await loginAsync(values).catch(() => {});
+  };
+
+  const handleDemoLogin = async (role: 'patient' | 'doctor') => {
+    setDemoLoading(role);
+    const credentials =
+      role === 'patient'
+        ? { email: 'demo.patient@medicare.com', password: 'Demo1234' }
+        : { email: 'jane.wangui@medicare.com', password: 'Demo1234' };
+
+    try {
+      await loginAsync(credentials);
+    } catch {
+      // Error display handled by loginError state below
+    } finally {
+      setDemoLoading(null);
+    }
   };
 
   const apiError = loginError as AxiosError<{ message: string }> | null;
@@ -143,7 +167,7 @@ export default function LoginPage() {
 
             {errorMessage && <ErrorMessage message={errorMessage} />}
 
-            <Button type="submit" size="lg" className="w-full rounded-xl bg-primary-600 hover:bg-primary-700 font-bold gap-2" disabled={isLoggingIn}>
+            <Button type="submit" size="lg" className="w-full rounded-xl bg-primary-600 hover:bg-primary-700 font-bold gap-2" disabled={isLoggingIn || demoLoading !== null}>
               {isLoggingIn ? (
                 <span className="flex items-center gap-2">
                   <LoadingSpinner size="sm" />
@@ -157,6 +181,67 @@ export default function LoginPage() {
             </Button>
           </form>
 
+          {/* Divider */}
+          <div className="relative my-2">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-white px-2 text-muted-foreground">
+                Or explore with a demo account
+              </span>
+            </div>
+          </div>
+
+          {/* Demo login buttons */}
+          <div
+            id="demo-buttons"
+            className={cn(
+              'grid grid-cols-2 gap-3 rounded-lg transition-all',
+              isDemoIntent && 'ring-2 ring-primary ring-offset-2 animate-pulse'
+            )}
+          >
+            <Button
+              type="button"
+              variant="outline"
+              id="demo-patient-btn"
+              className="flex-col h-auto py-3 gap-1.5 hover:border-primary/50 hover:bg-primary/5 transition-colors"
+              onClick={() => handleDemoLogin('patient')}
+              disabled={isLoggingIn || demoLoading !== null}
+            >
+              {demoLoading === 'patient' ? (
+                <LoadingSpinner size="sm" />
+              ) : (
+                <>
+                  <UserRound className="h-5 w-5 text-primary" />
+                  <span className="text-xs font-medium">View as Patient</span>
+                </>
+              )}
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              id="demo-doctor-btn"
+              className="flex-col h-auto py-3 gap-1.5 hover:border-primary/50 hover:bg-primary/5 transition-colors"
+              onClick={() => handleDemoLogin('doctor')}
+              disabled={isLoggingIn || demoLoading !== null}
+            >
+              {demoLoading === 'doctor' ? (
+                <LoadingSpinner size="sm" />
+              ) : (
+                <>
+                  <Stethoscope className="h-5 w-5 text-primary" />
+                  <span className="text-xs font-medium">View as Doctor</span>
+                </>
+              )}
+            </Button>
+          </div>
+
+          <p className="text-center text-xs text-muted-foreground -mt-4">
+            No signup needed — instantly explore the platform with pre-loaded sample data
+          </p>
+
           <div className="pt-4 text-center border-t border-border/50">
             <p className="text-xs text-muted-foreground">
               Don&apos;t have an account?{' '}
@@ -168,5 +253,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><LoadingSpinner /></div>}>
+      <LoginForm />
+    </Suspense>
   );
 }

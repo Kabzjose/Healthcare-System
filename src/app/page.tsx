@@ -121,6 +121,12 @@ export default function LandingPage() {
                       Book Appointment <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
                   </Button>
+                  <Button asChild size="lg" className="w-full sm:w-auto rounded-full px-9 bg-teal-600 hover:bg-teal-700 text-white font-extrabold shadow-lg shadow-teal-500/30 hover:shadow-xl hover:-translate-y-1 transition-all h-14 text-base">
+                    <Link href="/login?demo=true">
+                      <Sparkles className="mr-2 h-5 w-5" />
+                      Explore Live Demo
+                    </Link>
+                  </Button>
                   <Button asChild variant="outline" size="lg" className="w-full sm:w-auto rounded-full px-9 border-2 border-primary-600 text-primary-700 hover:bg-primary-50 text-base font-extrabold h-14 shadow-sm hover:shadow-md transition-all">
                     <Link href="/about">Learn More</Link>
                   </Button>

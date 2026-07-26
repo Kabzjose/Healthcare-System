@@ -19,6 +19,7 @@ import {
 } from '@/hooks/useDoctors';
 import { useToast } from '@/hooks/use-toast';
 import { DayOfWeek, AvailabilitySlot } from '@/types';
+import { useAuthStore, isDemoAccount } from '@/store/authStore';
 
 const DAYS: DayOfWeek[] = [
   'monday',
@@ -40,6 +41,8 @@ const groupByDay = (slots: AvailabilitySlot[]) =>
 export default function AvailabilityPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { user } = useAuthStore();
+  const isDemo = isDemoAccount(user?.email);
 
   const { data: slots = [], isLoading, error } = useMyAvailability();
 
@@ -94,6 +97,13 @@ export default function AvailabilityPage() {
   };
 
   const handleDelete = async (slotId: string) => {
+    if (isDemo) {
+      toast({
+        title: 'Demo account',
+        description: 'Deleting slots is disabled in demo mode to keep sample data intact for other visitors.',
+      });
+      return;
+    }
     if (!confirm('Delete this slot?')) return;
     try {
       await deleteSlot.mutateAsync(slotId);

@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { AppointmentStatusBadge } from './StatusBadge';
 import { Appointment, UserRole } from '@/types';
 import { formatDate, formatTime, formatCurrency, cn } from '@/lib/utils';
+import { useAuthStore, isDemoAccount } from '@/store/authStore';
+import { useToast } from '@/hooks/use-toast';
 
 interface AppointmentCardProps {
   appointment: Appointment;
@@ -25,6 +27,10 @@ export const AppointmentCard = ({
   onPay,
   isUpdating,
 }: AppointmentCardProps) => {
+  const { user } = useAuthStore();
+  const { toast } = useToast();
+  const isDemo = isDemoAccount(user?.email);
+
   const isPending = appointment.status === 'pending';
   const isConfirmed = appointment.status === 'confirmed';
   const isCompleted = appointment.status === 'completed';
@@ -166,7 +172,16 @@ export const AppointmentCard = ({
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => onCancel(appointment.id)}
+                onClick={() => {
+                  if (isDemo) {
+                    toast({
+                      title: 'Demo account',
+                      description: 'Cancelling is disabled in demo mode to keep sample data intact for other visitors.',
+                    });
+                    return;
+                  }
+                  onCancel(appointment.id);
+                }}
                 disabled={isUpdating}
                 className="text-red-600 border-red-200 hover:bg-red-50 gap-1.5"
               >
